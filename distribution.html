@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>three.js webgl - hack</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<link type="text/css" rel="stylesheet" href="main.css">
+		<style>
+			b {
+				color: lightgreen;
+			}
+		</style>
+	</head>
+	<body>
+
+<div>[<a href="rushHour.html">Rush Hour</a>]  [<a href="transforms.html">Transforms</a>]  [<a href="distribution.html">Distribution</a>]  [<a href="waterfalls.html">Waterfalls</a>]   </div>
+<div id="screen"></div>
+
+		<script type="importmap">
+			{
+				"imports": {
+					"three": "./build/three.module.js",
+					"vehicle": "./ball.vehicle.module.js",
+					"three/addons/": "./jsm/"
+				}
+			}
+		</script>
+
+		<script type="module">
+
+			import * as THREE from 'three';
+			import * as VEHICLE from 'vehicle';
+	
+			function fetchLayout(url){
+			    var Httpreq = new XMLHttpRequest(); // a new request
+			    Httpreq.open("GET",url,false);
+			    Httpreq.send(null);
+			    return Httpreq.responseText;          
+			}
+
+			let jsonLayout = JSON.parse(fetchLayout('distribution.json'));
+	            
+	        const elem = document.getElementById('screen');
+	            
+            const layout = new VEHICLE.SimpleTrackLayout(jsonLayout, window.innerWidth , window.innerHeight);
+			elem.appendChild( layout.getDomElement() );
+//			document.body.appendChild( layout.getDomElement() );
+			layout.layout();
+						
+			function animate() {
+				requestAnimationFrame( animate );
+				layout.move();
+			}
+			
+			animate();
+
+		</script>
+
+	</body>
+</html>
