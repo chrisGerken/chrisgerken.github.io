@@ -11,24 +11,24 @@
 		{"type":"defineColor","name":"red","r":136,"g":0,"b":0} ,
 		{"type":"defineColor","name":"grey","r":169,"g":169,"b":169} ,
 
-		{"type":"generator","every":15,"max":200,"balls":[{"color":"blue","speed":3}], "tv": {"x":-2.0, "y":0.7, "z":0, "neswAngle":0, "elevAngle":0  }} ,
-		{"type":"straight","length":0.4} ,
+		{"type":"generator","every":15,"max":200,"balls":[{"color":"blue","speed":3}], "tv": {"x":-2.8, "y":1.9, "z":0, "neswAngle":-90, "elevAngle":0  }} ,
+		{"type":"straight","length":0.2} ,
 		{"type":"sprayer","label":"a1"} ,
 
-		{"type":"generator","every":15,"max":200,"balls":[{"color":"red","speed":3}], "tv": {"x":-2.0, "y":0.9, "z":0, "neswAngle":0, "elevAngle":0  }} ,
-		{"type":"straight","length":0.4} ,
+		{"type":"generator","every":15,"max":200,"balls":[{"color":"red","speed":3}], "tv": {"x":-2.6, "y":1.9, "z":0, "neswAngle":-90, "elevAngle":0  }} ,
+		{"type":"straight","length":0.2} ,
 		{"type":"sprayer","label":"b1"} ,
 
-		{"type":"generator","every":15,"max":200,"balls":[{"color":"yellow","speed":3}], "tv": {"x":-2.0, "y":1.1, "z":0, "neswAngle":0, "elevAngle":0  }} ,
-		{"type":"straight","length":0.4} ,
+		{"type":"generator","every":15,"max":200,"balls":[{"color":"yellow","speed":3}], "tv": {"x":-2.4, "y":1.9, "z":0, "neswAngle":-90, "elevAngle":0  }} ,
+		{"type":"straight","length":0.2} ,
 		{"type":"sprayer","label":"c1"} ,
 
-		{"type":"generator","every":15,"max":200,"balls":[{"color":"purple","speed":3}], "tv": {"x":-2.0, "y":1.3, "z":0, "neswAngle":0, "elevAngle":0  }} ,
-		{"type":"straight","length":0.4} ,
+		{"type":"generator","every":15,"max":200,"balls":[{"color":"purple","speed":3}], "tv": {"x":-2.2, "y":1.9, "z":0, "neswAngle":-90, "elevAngle":0  }} ,
+		{"type":"straight","length":0.2} ,
 		{"type":"sprayer","label":"d1"} ,
 
-		{"type":"generator","every":15,"max":200,"balls":[{"color":"green","speed":3}], "tv": {"x":-2.0, "y":1.5, "z":0, "neswAngle":0, "elevAngle":0  }} ,
-		{"type":"straight","length":0.4} ,
+		{"type":"generator","every":15,"max":200,"balls":[{"color":"green","speed":3}], "tv": {"x":-2.0, "y":1.9, "z":0, "neswAngle":-90, "elevAngle":0  }} ,
+		{"type":"straight","length":0.2} ,
 		{"type":"sprayer","label":"e1"} ,
 		
 		{"type":"log","message":"Writing stream a"} , 
@@ -1073,23 +1073,23 @@
 		{"type":"connectTo","label":"e35"} ,
 
 		{"type":"setCurrent","label":"a35"} ,
-		{"type":"straight","length":0.4} ,
+		{"type":"straight","length":0.2} ,
 		{"type":"disposal"} ,
 
 		{"type":"setCurrent","label":"b35"} ,
-		{"type":"straight","length":0.4} ,
+		{"type":"straight","length":0.2} ,
 		{"type":"disposal"} ,
 
 		{"type":"setCurrent","label":"c35"} ,
-		{"type":"straight","length":0.4} ,
+		{"type":"straight","length":0.2} ,
 		{"type":"disposal"} ,
 
 		{"type":"setCurrent","label":"d35"} ,
-		{"type":"straight","length":0.4} ,
+		{"type":"straight","length":0.2} ,
 		{"type":"disposal"} ,
 
 		{"type":"setCurrent","label":"e35"} ,
-		{"type":"straight","length":0.4} ,
+		{"type":"straight","length":0.2} ,
 		{"type":"disposal"} 
 		]
 	}

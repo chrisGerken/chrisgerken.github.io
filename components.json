@@ -1,0 +1,41 @@
+{ 
+	"name":"Components", 
+	"layout":[
+		{"type":"setting","name":"pointSeparation","value":0.01} ,
+		{"type":"setting","name":"ballSafeDistance","value":5} ,
+		{"type":"setting","name":"defaultTrackColor","value":"grey"} ,
+		{"type":"defineColor","name":"red","r":136,"g":0,"b":0} ,
+		{"type":"defineColor","name":"blue","r":0,"g":0,"b":136} ,
+		{"type":"defineColor","name":"green","r":0,"g":136,"b":0} ,
+		{"type":"defineColor","name":"yellow","r":136,"g":136,"b":0} ,
+		{"type":"defineColor","name":"purple","r":136,"g":0,"b":136} ,
+		{"type":"defineColor","name":"cyan","r":0,"g":136,"b":136} ,
+		{"type":"defineColor","name":"grey","r":169,"g":169,"b":169} ,
+
+
+		{"type":"generator","every":10,"balls":[{"color":"blue","speed":2}], "tv": {"x":-3.5, "y":1.7, "z":0, "neswAngle":0, "elevAngle":0  }} ,
+		{"type":"straight","length":1.5} ,
+		{"type":"stop","frequency":100,"starts":0,"stops":30} ,
+		{"type":"straight","length":1.5} ,
+		{"type":"disposal"} ,
+
+		{"type":"generator","every":10,"balls":[{"color":"red","speed":2}], "tv": {"x":-3.5, "y":1.5, "z":0, "neswAngle":0, "elevAngle":0  }} ,
+		{"type":"straight","length":1.5} ,
+		{"type":"stop","frequency":100,"starts":33,"stops":63} ,
+		{"type":"straight","length":1.5} ,
+		{"type":"disposal"} ,
+
+		{"type":"generator","every":10,"balls":[{"color":"yellow","speed":2}], "tv": {"x":-3.5, "y":1.3, "z":0, "neswAngle":0, "elevAngle":0  }} ,
+		{"type":"straight","length":1.5} ,
+		{"type":"stop","frequency":100,"starts":66,"stops":96} ,
+		{"type":"straight","length":1.5} ,
+		{"type":"disposal"} ,
+
+		{"type":"generator","every":20,"balls":[{"color":"purple","speed":2}], "tv": {"x":-3.5, "y":0.8, "z":0, "neswAngle":0, "elevAngle":0  }} ,
+		{"type":"straight","length":1.5} ,
+		{"type":"painter","color":"cyan"} ,
+		{"type":"straight","length":1.5} ,
+		{"type":"disposal"} 
+
+		]
+	}

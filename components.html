@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 	<head>
-		<title>three.js webgl - hack</title>
+		<title>three.js webgl - components</title>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 		<link type="text/css" rel="stylesheet" href="main.css">
@@ -13,7 +13,7 @@
 	</head>
 	<body>
 
-<div>[<a href="rushHour.html">Rush Hour</a>]  [<a href="transforms.html">Transforms</a>]  [<a href="distribution.html">Distribution</a>]  [<a href="index.html">Home</a>]   </div>
+<div>[<a href="index.html">Home</a>]   </div>
 <div id="screen"></div>
 
 		<script type="importmap">
@@ -38,7 +38,7 @@
 			    return Httpreq.responseText;          
 			}
 
-			let jsonLayout = JSON.parse(fetchLayout('distribution.json'));
+			let jsonLayout = JSON.parse(fetchLayout('components.json'));
 	            
 	        const elem = document.getElementById('screen');
 	            
