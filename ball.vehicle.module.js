@@ -231,9 +231,9 @@ class SimpleTrackLayout {
 		return this.currentTrack;	
 	}
 	
-	addStop( label ) {
+	addStop( jobj ) {
 		this.previousTrack = this.currentTrack;
-		this.currentTrack = new StopSwitch( this.currentTrack.endTv , label );
+		this.currentTrack = new StopTrack( this.currentTrack.endTv , jobj );
 		this.previousTrack.setNextTrack(this.currentTrack);
 		this.addFluid(this.currentTrack);
 		return this.currentTrack;	
@@ -389,6 +389,11 @@ class SimpleTrackLayout {
 			return;			
 		}
 		
+		if (type === "stop") {
+			this.addStop( action );
+			return;			
+		}
+		
 		if (type === "connectTo") {
 			this.connectTo( action["label"] );
 			return;			
@@ -532,6 +537,55 @@ class PainterTrack extends Track {
 //		vehicle.changeColor(this.color);
 		vehicle.ballMesh.material.color.set(this.color);
 		vehicle.color = this.color;
+	}
+
+}
+
+class StopTrack extends Track {
+	
+	constructor ( tv , jobj ) {
+		super (tv);
+		this.type = "stop";
+		this.frequency = jobj["frequency"];
+		this.starts = jobj["starts"];
+		this.stops = jobj["stops"];
+		this.logConstruct(JSON.stringify(this));
+		this.counter = 0;
+		this.open = false;
+		this.points = [];
+		this.places = [];
+		this.endTv = tv;
+		this.active = true;
+	}
+
+	getDisplayableObject( ) {
+		
+		this.mesh = new THREE.Mesh( new THREE.SphereGeometry( 0.02, 3, 3 ), new THREE.MeshBasicMaterial( { color: 0xffffff } ) ); 
+		this.mesh.position.set(this.tv.x,this.tv.y,this.tv.z);
+		
+		this.logPlacement(this.type+": on "+this.tv.asString());
+		
+		return [ this.mesh ];
+
+	}
+
+	move() {
+		this.counter++;
+		if (this.counter >= this.frequency) {
+			this.counter = 0;
+		}
+		if (this.counter == this.starts) {
+			this.open = true;
+			this.mesh.color = 0xffffff;
+		}
+		if (this.counter == this.stops) {
+			this.open = false;
+			this.mesh.color = 0x333333;
+		}
+	}
+	
+	isPrevTrack( track ) {
+		return this.open;
 	}
 
 }
@@ -896,7 +950,7 @@ class RegularGenerator extends Track {
 	constructor ( tv , jobj ) {
 		super(tv);
 		this.every 	= lookup(jobj, "every", 10);
-		this.max 	= lookup(jobj, "max" , 1);
+		this.max 	= lookup(jobj, "max" , -1);
 		this.balls = [];
 		let jarr = jobj["balls"];
 		for( let i = 0; i < jarr.length; i++) {
@@ -931,7 +985,7 @@ class RegularGenerator extends Track {
 		if (this.index >= this.every) {
 			this.index = 0;
 			this.created ++;
-			if (this.max >= this.created) {
+			if ((this.max == -1) | (this.max >= this.created)) {
 				if (this.nextTrack.isOccupied(0)) {
 					this.created--;
 					return;
@@ -1047,7 +1101,7 @@ class BallVehicle {
 	}
 	
 	changeColor( newColor) {
-	this.ballMesh.color = newColor;
+		this.ballMesh.color = newColor;
 	}
 	
 	move() {

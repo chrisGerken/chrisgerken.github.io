@@ -9,7 +9,9 @@
 		{"type":"defineColor","name":"green","r":0,"g":136,"b":0} ,
 		{"type":"defineColor","name":"yellow","r":136,"g":136,"b":0} ,
 		{"type":"defineColor","name":"grey","r":169,"g":169,"b":169} ,
-		{"type":"generator","every":20,"max":200,"balls":[{"color":"blue","speed":3}], "tv": {"x":-2.0, "y":-0.8, "z":0, "neswAngle":0, "elevAngle":0  }} ,
+		{"type":"generator","every":12,"max":60,"balls":[{"color":"blue","speed":3}], "tv": {"x":-2.3, "y":-0.8, "z":0, "neswAngle":0, "elevAngle":0  }} ,
+		{"type":"straight","length":0.3} ,
+		{"type":"switch","label":"sw00"} ,
 		{"type":"straight","length":1.0} ,
 		{"type":"switch","label":"sw01"} ,
 		{"type":"straight","length":1.0} ,
@@ -96,8 +98,30 @@
 		{"type":"connectTo","label":"sw06"} , 
 
 		{"type":"setCurrent","label":"sort03"} ,
-		{"type":"straight","length":1.0} ,
-		{"type":"disposal"} 
+		{"type":"straight","length":1.5} ,
+
+
+		{"type":"left","radius":0.1,"angle":180} ,
+		{"type":"straight","length":0.8} ,
+		{"type":"right","radius":0.1,"angle":180} ,
+		{"type":"straight","length":0.8} ,
+		{"type":"left","radius":0.1,"angle":180} ,
+		{"type":"straight","length":0.8} ,
+		{"type":"right","radius":0.1,"angle":180} ,
+		{"type":"straight","length":0.8} ,
+		{"type":"left","radius":0.1,"angle":180} ,
+		{"type":"straight","length":0.8} ,
+		{"type":"right","radius":0.1,"angle":180} ,
+		{"type":"straight","length":0.8} ,
+		{"type":"left","radius":0.1,"angle":180} ,
+		{"type":"stop","frequency":4000,"starts":0,"stops":250} ,
+		{"type":"straight","length":0.3} ,
+		{"type":"painter","color":"blue"} ,
+		{"type":"right","radius":0.1,"angle":90} ,
+		{"type":"left","radius":0.1,"angle":90} ,
+		{"type":"connectTo","label":"sw00"} 
+
+
 
 		]
 	}
