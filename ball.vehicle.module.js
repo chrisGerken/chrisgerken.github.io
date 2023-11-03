@@ -193,8 +193,8 @@ class SimpleTrackLayout {
 
 	addFluid(v) {
 		this.fluid.push( v );
-		const dobjs = v.getDisplayableObject();
-		for (const dob of dobjs) {
+		let dobjs = v.getDisplayableObject();
+		for (let dob of dobjs) {
 			this.scene.add( dob );
 		}
 	}
@@ -314,7 +314,7 @@ class SimpleTrackLayout {
 	
 	move() {
 		let newFluid = [];
-		for (const v of this.fluid) {
+		for (let v of this.fluid) {
   			v.move();
   			if (v.active) {
 				newFluid.push(v);	  
@@ -575,6 +575,7 @@ class StopTrack extends Track {
 		this.stops = jobj["stops"];
 		this.logConstruct(JSON.stringify(this));
 		this.counter = 0;
+		this.color = this.red();
 		this.open = false;
 		this.points = [];
 		this.places = [];
@@ -584,7 +585,7 @@ class StopTrack extends Track {
 
 	getDisplayableObject( ) {
 		
-		this.mesh = new THREE.Mesh( new THREE.SphereGeometry( 0.02, 3, 3 ), new THREE.MeshBasicMaterial( { color: 0xffffff } ) ); 
+		this.mesh = new THREE.Mesh( new THREE.SphereGeometry( 0.02, 3, 3 ), new THREE.MeshBasicMaterial( { color: this.color } ) ); 
 		this.mesh.position.set(this.tv.x,this.tv.y,this.tv.z);
 		
 		this.logPlacement(this.type+": on "+this.tv.asString());
@@ -600,12 +601,24 @@ class StopTrack extends Track {
 		}
 		if (this.counter == this.starts) {
 			this.open = true;
-			this.mesh.color = 0xffffff;
+			this.color = this.green();
+			this.mesh.material.color.set( this.color );
+//			this.mesh.material.color.setHex( 0xc24a4a );
 		}
 		if (this.counter == this.stops) {
 			this.open = false;
-			this.mesh.color = 0x333333;
+			this.color = this.red();
+			this.mesh.material.color.set( this.color );
 		}
+	}
+	
+	green() {
+		return 0x00ff00;
+	}
+	
+	
+	red() {
+		return 0xff0000;
 	}
 	
 	isPrevTrack( track ) {
@@ -966,6 +979,135 @@ class RightCurveTrack extends Track {
 		return [ new THREE.Line( geometry, material ) ];
 
 	}
+// end right curve
+}
+
+// Still WIP
+class UpRampTrack extends Track {
+	
+	constructor ( tv, jobj ) {
+		super(tv);
+		this.radius = jobj["radius"];
+		this.angle = jobj["angle"];
+		this.color =  lookupColor( lookup( jobj , "color" , defaultTrackColor ));
+		this.type = "up";
+		this.logConstruct(JSON.stringify(this));
+		
+		let costest = cvcos(tv.elevAngle);
+		if ((costest < 0.99) & (costest > 0.01)) {
+			console.log("Up ramp not on a valid plane");
+		}
+		this.onY = true;	
+		
+		this.cx = tv.x + (cvcos(tv.neswAngle+90) * this.radius);
+		this.cy = tv.y + (cvsin(tv.neswAngle+90) * this.radius);
+		
+		const beta = 90 - tv.neswAngle;
+		
+		const ex = this.cx + (cvcos(this.angle-beta) * this.radius);
+		const ey = this.cy + (cvsin(this.angle-beta) * this.radius);
+		
+		const ea = tv.neswAngle + this.angle;
+		
+		this.fromAngle = (this.tv.neswAngle - 90)  / 180 * Math.PI;
+		this.toAngle =  (this.tv.neswAngle + this.angle - 90)  / 180 * Math.PI;
+		
+		this.endTv = new TrackVector(ex, ey, tv.z, ea, tv.elevAngle);
+	}
+
+	getDisplayableObject( ) {
+
+		const curve = new THREE.EllipseCurve(
+								this.cx,  this.cy, 
+								this.radius, this.radius,
+ 								this.fromAngle,  this.toAngle ,
+								false,            // aClockwise
+								0                 // aRotation
+							);
+
+		let lcNum = Math.ceil(Math.PI * 2 * this.radius * this.angle / 360 / pointSeparation) + 1;
+		const lcp = curve.getPoints( lcNum );
+		this.points = [];
+		this.places = [];
+		for (let i =0; i < lcNum; i++) {
+			let lcpt = lcp[i];
+			lcpt.z = this.tv.z;
+			this.points.push( lcpt );
+			this.places.push( false );
+		}
+
+		const geometry = new THREE.BufferGeometry().setFromPoints( curve.getPoints( 50 ) );
+		const material = new THREE.LineBasicMaterial( { color: this.color } );
+		
+		this.logPlacement(this.type+": from "+this.tv.asString()+" to "+this.endTv.asString());
+		
+		return [ new THREE.Line( geometry, material ) ];
+
+	}
+
+}
+
+// Still WIP
+class DownRampTrack extends Track {
+	
+	constructor ( tv, jobj ) {
+		super(tv);
+		this.radius = jobj["radius"];
+		this.angle = jobj["angle"];
+		this.color =  lookupColor( lookup( jobj , "color" , defaultTrackColor ));
+		this.type = "right";
+		this.logConstruct(JSON.stringify(this));
+		
+		let costest = cvcos(tv.elevAngle);
+		if ((costest < 0.99) & (costest > 0.01)) {
+			console.log("Up ramp not on a valid plane");
+		}	
+		
+		this.cx = tv.x + (cvcos(tv.neswAngle-90) * this.radius);
+		this.cy = tv.y + (cvsin(tv.neswAngle-90) * this.radius);
+		
+		const beta = 90 - this.angle + tv.neswAngle;
+		
+		const ex = this.cx + (cvcos(beta) * this.radius);
+		const ey = this.cy + (cvsin(beta) * this.radius);
+		
+		const ea = tv.neswAngle - this.angle;
+		
+		this.fromAngle = (this.tv.neswAngle + 90)  / 180 * Math.PI;
+		this.toAngle =  (beta)  / 180 * Math.PI;
+		
+		this.endTv = new TrackVector(ex, ey, tv.z, ea, tv.elevAngle);
+	}
+
+	getDisplayableObject( ) {
+
+		const curve = new THREE.EllipseCurve(
+								this.cx,  this.cy, 
+								this.radius, this.radius,
+ 								this.fromAngle,  this.toAngle ,
+								true,            // aClockwise
+								0                 // aRotation
+							);
+
+		let rcNum = Math.ceil(Math.PI * 2 * this.radius * this.angle / 360 / pointSeparation) + 1;
+		const rcp = curve.getPoints( rcNum );
+		this.points = [];
+		this.places = [];
+		for (let i =0; i < rcNum; i++) {
+			let rcpt = rcp[i];
+			rcpt.z = this.tv.z;
+			this.points.push( rcpt );
+			this.places.push( false );
+		}
+
+		const geometry = new THREE.BufferGeometry().setFromPoints( curve.getPoints( 50 ) );
+		const material = new THREE.LineBasicMaterial( { color: this.color } );
+		
+		this.logPlacement(this.type+": from "+this.tv.asString()+" to "+this.endTv.asString());
+		
+		return [ new THREE.Line( geometry, material ) ];
+
+	}
 
 }
 
@@ -1129,9 +1271,6 @@ class BallVehicle {
 	}
 	
 	move() {
-		if (this.color == 0x00ff00) {
-			let a = this.color;
-		}
 		move(this);
 	}
 
