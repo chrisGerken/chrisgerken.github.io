@@ -1,5 +1,9 @@
 { 
 	"name":"Rush Hour", 
+	"camera": {
+		"position": {"x":0,"y":0,"z":2.5},
+		"target": {"x":-2,"y":0,"z":0}
+	},
 	"layout":[
 		{"type":"setting","name":"pointSeparation","value":0.01} ,
 		{"type":"setting","name":"ballSafeDistance","value":10} ,

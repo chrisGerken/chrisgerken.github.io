@@ -5,6 +5,7 @@
  */
 
 import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
 const loggingConstructs = false;
 const loggingPlacement = false;
@@ -134,17 +135,40 @@ class SimpleTrackLayout {
 		this.fluid = [ ];
 		this.fixed = [ ];
 		
+		if (!config.hasOwnProperty("camera")) {
+			config.camera = { };	
+		}
+		
+		let pos = {};
+		if (config.camera.hasOwnProperty("position")) {
+			pos = config.camera.position;	
+		} else {
+			pos = {"x":0,"y":0,"z":3};	
+		}
+		
+		let trg = {};
+		if (config.camera.hasOwnProperty("target")) {
+			trg = config.camera.target;	
+		} else {
+			trg = {"x":0,"y":0,"z":0};	
+		}
+//		if (!config.camera.hasOwnProperty("target")) {
+//			config.camera.target = {"x":0,"y":0,"z":0};	
+//		}
+		
 		this.scene = new THREE.Scene();
 		this.camera = new THREE.PerspectiveCamera( 75, innerWidth / innerHeight, 0.1, 1000 );
-		this.camera.position.x = 0;
-		this.camera.position.y = 0;
-		this.camera.position.z = 3;
-//		this.camera.rotation.x = Math.PI / 3;
-// 		this.camera.rotation.y = Math.PI / 3;
-// 		this.camera.rotation.z = Math.PI / 3;
-			
+		this.camera.position.x = pos.x;
+		this.camera.position.y = pos.y;
+		this.camera.position.z = pos.z;
+
 		this.renderer = new THREE.WebGLRenderer();
 		this.renderer.setSize( innerWidth, innerHeight );
+		
+		this.controls = new OrbitControls( this.camera, this.renderer.domElement );
+		this.camera.position.set( pos.x , pos.y , pos.z );
+//		this.camera.target = trg;
+		this.controls.update();	
 			
 		const light = new THREE.DirectionalLight(0xFFFFFF, 3);
 		light.position.set(-1, 2, 4);

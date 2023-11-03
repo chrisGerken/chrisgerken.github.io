@@ -1,5 +1,9 @@
 { 
 	"name":"Transforms", 
+	"camera": {
+		"position": {"x":0,"y":0,"z":3},
+		"xxx": {"x":0,"y":0,"z":3}
+	},
 	"layout":[
 		{"type":"setting","name":"pointSeparation","value":0.01} ,
 		{"type":"setting","name":"ballSafeDistance","value":10} ,

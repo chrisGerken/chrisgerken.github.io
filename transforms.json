@@ -1,5 +1,9 @@
 { 
 	"name":"Transforms", 
+	"camera": {
+		"position": {"x":0,"y":0,"z":2.5},
+		"xxx": {"x":0,"y":0,"z":3}
+	},
 	"layout":[
 		{"type":"setting","name":"pointSeparation","value":0.01} ,
 		{"type":"setting","name":"ballSafeDistance","value":10} ,
@@ -9,7 +13,7 @@
 		{"type":"defineColor","name":"green","r":0,"g":136,"b":0} ,
 		{"type":"defineColor","name":"yellow","r":136,"g":136,"b":0} ,
 		{"type":"defineColor","name":"grey","r":169,"g":169,"b":169} ,
-		{"type":"generator","every":12,"max":60,"balls":[{"color":"blue","speed":3}], "tv": {"x":-2.3, "y":-0.8, "z":0, "neswAngle":0, "elevAngle":0  }} ,
+		{"type":"generator","every":6,"max":60,"balls":[{"color":"blue","speed":3}], "tv": {"x":-2.3, "y":-0.8, "z":0, "neswAngle":0, "elevAngle":0  }} ,
 		{"type":"straight","length":0.3} ,
 		{"type":"switch","label":"sw00"} ,
 		{"type":"straight","length":1.0} ,
