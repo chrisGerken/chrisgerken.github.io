@@ -223,6 +223,22 @@ class SimpleTrackLayout {
 		return this.currentTrack;	
 	}
 	
+	addUpRamp( action ) {
+		this.previousTrack = this.currentTrack;
+		this.currentTrack = new UpRampTrack( this.currentTrack.endTv, action );
+		this.previousTrack.setNextTrack(this.currentTrack);
+		this.addFixed(this.currentTrack);
+		return this.currentTrack;	
+	}
+	
+	addDownRamp( action ) {
+		this.previousTrack = this.currentTrack;
+		this.currentTrack = new DownRampTrack( this.currentTrack.endTv, action );
+		this.previousTrack.setNextTrack(this.currentTrack);
+		this.addFixed(this.currentTrack);
+		return this.currentTrack;	
+	}
+	
 	addPainter( action ) {
 		this.previousTrack = this.currentTrack;
 		this.currentTrack = new PainterTrack( this.currentTrack.endTv , action );
@@ -390,6 +406,16 @@ class SimpleTrackLayout {
 		
 		if (type === "right") {
 			this.addRightCurve( action );
+			return;			
+		}
+		
+		if (type === "up") {
+			this.addUpRamp( action );
+			return;			
+		}
+		
+		if (type === "down") {
+			this.addDownRamp( action );
 			return;			
 		}
 		
@@ -866,54 +892,181 @@ class StraightTrack extends Track  {
 
 }
 
-class LeftCurveTrack extends Track {
+class CurveTrack extends Track {
 	
 	constructor ( tv, jobj ) {
 		super(tv);
 		this.radius = jobj["radius"];
-		this.angle = jobj["angle"];
+		this.angle =  jobj["angle"];
 		this.color =  lookupColor( lookup( jobj , "color" , defaultTrackColor ));
-		this.type = "left";
-		this.logConstruct(JSON.stringify(this));
-		
-		this.cx = tv.x + (cvcos(tv.neswAngle+90) * this.radius);
-		this.cy = tv.y + (cvsin(tv.neswAngle+90) * this.radius);
-		
-		const beta = 90 - tv.neswAngle;
-		
-		const ex = this.cx + (cvcos(this.angle-beta) * this.radius);
-		const ey = this.cy + (cvsin(this.angle-beta) * this.radius);
-		
-		const ea = tv.neswAngle + this.angle;
-		
-		this.fromAngle = (this.tv.neswAngle - 90)  / 180 * Math.PI;
-		this.toAngle =  (this.tv.neswAngle + this.angle - 90)  / 180 * Math.PI;
-		
-		this.endTv = new TrackVector(ex, ey, tv.z, ea, tv.elevAngle);
+		this.calculateSpecifics();
+		this.endTv = this.calculateEndTv(); 
+		this.jobj = jobj;
+		console.log(JSON.stringify(this));
 	}
 
-	getDisplayableObject( ) {
+	calculateSpecifics() {
+		// Must be overridden
+		return { }; 	
+	}
+	
+	calculateEndTv() {
+		// Must be overridden
+		
+		// new TrackVector(ex, ey, tv.z, ea, tv.elevAngle);
+		return {};
+	}
+	
+	calculateStuffXY(x, y, currentAngle, counterClockwise) {
+		// x, y are primary and seconday axis values from tv
+		// currentAngle is either neswAngle or elevAngle
+		// clockwise is true for left and up
+		// deltaAngle is the arc of the track
+		// use radius from the object
+		
+		this.calc = {};
+		
+		let mirror = -1;
+		if (counterClockwise) {
+			mirror = 1;	
+		}
 
+		this.calc.cx = x + (cvcos(currentAngle+(90*mirror)) * this.radius);
+		this.calc.cy = y + (cvsin(currentAngle+(90*mirror)) * this.radius);
+		
+		const beta = currentAngle + (this.angle - 90) * mirror;
+		
+		this.calc.ex = this.calc.cx + (cvcos(beta) * this.radius);
+		this.calc.ey = this.calc.cy + (cvsin(beta) * this.radius);
+		
+		this.calc.newAngle = currentAngle + (this.angle * mirror);
+		
+		this.calc.fromAngle = (currentAngle - (90*mirror))  / 180 * Math.PI;
+		this.calc.toAngle =  (currentAngle + ((this.angle - 90)*mirror))  / 180 * Math.PI;
+	
 		const curve = new THREE.EllipseCurve(
-								this.cx,  this.cy, 
+								this.calc.cx,  this.calc.cy, 
 								this.radius, this.radius,
- 								this.fromAngle,  this.toAngle ,
-								false,            // aClockwise
+ 								this.calc.fromAngle,  this.calc.toAngle ,
+								!counterClockwise,       // aClockwise
 								0                 // aRotation
 							);
+	
+		this.lcNum = Math.ceil(Math.PI * 2 * this.radius * this.angle / 360 / pointSeparation) + 1;
+		this.calc.pointPosition = curve.getPoints( this.lcNum );
+	
+	}
+	
+	calculateStuffNonXY(x, y, currentAngle, isRightOrDown) {
+		// x, y are primary and seconday axis values from tv
+		// currentAngle is either neswAngle or elevAngle
+		// clockwise is true for left and up
+		// deltaAngle is the arc of the track
+		// use radius from the object
+		
+		this.calc = {};
+		
+		// nesw should be one of 0, 90 , -90 and -180
+		
+		let sgn01 = 1;  // sign for cx calc.
+		let sgn02 = 1;  // sign for angle +/- for center calc
+		let sgn03 = 1;  // 
+		let clockwise = true;
+		
+		let nesw = this.tv.neswAngle;
+		
+		if ((cvcos(nesw) < 0) | (cvsin(nesw) < 0)) {
+			sgn01 = -1;
+		}
+		
+		if (isRightOrDown) {
+			sgn02 = -1;
+			clockwise = false;
+		}
+		
+		sgn03 = 0 - sgn02;  // ??
 
-		let lcNum = Math.ceil(Math.PI * 2 * this.radius * this.angle / 360 / pointSeparation) + 1;
-		const lcp = curve.getPoints( lcNum );
+		if (sgn01 == 1) {
+			clockwise = !isRightOrDown;
+		} else {
+			clockwise = isRightOrDown;
+		}
+
+		this.calc.cx = x + (cvcos(currentAngle+(90*sgn02)) * this.radius * sgn01);
+		this.calc.cy = y + (cvsin(currentAngle+(90*sgn02)) * this.radius);
+		
+		this.calc.newAngle = currentAngle + this.angle * sgn02; 
+		
+		this.calc.fromAngle = (currentAngle + (90*sgn03))  / 180 * Math.PI;
+		this.calc.toAngle =  (currentAngle + (90*sgn03) - (this.angle * sgn02))  / 180 * Math.PI;
+	
+		const curve = new THREE.EllipseCurve(
+								this.calc.cx,  this.calc.cy, 
+								this.radius, this.radius,
+ 								this.calc.fromAngle,  this.calc.toAngle ,
+								clockwise,  
+								0                 	// aRotation
+							);
+	
+		this.lcNum = Math.ceil(Math.PI * 2 * this.radius * this.angle / 360 / pointSeparation) + 1;
+		this.calc.pointPosition = curve.getPoints( this.lcNum );
+
+		this.calc.ex = this.calc.pointPosition[this.lcNum].x;
+		this.calc.ey = this.calc.pointPosition[this.lcNum].y;
+	
+	}
+
+	toNesw() {
+		
+		let cvc = cvcos(this.tv.neswAngle);
+		let cvs = cvsin(this.tv.neswAngle);
+
+		if (cvc > 0.999) {
+			this.tv.neswAngle = 0;
+		} else if (cvc < 0.999) {
+			this.tv.neswAngle = -180;
+		} else if (cvs > 0.999) {
+			this.tv.neswAngle = 90;
+		} else if (cvs < 0.999) {
+			this.tv.neswAngle = -90;
+		} else {
+			return false; 	
+		}
+		
+		return true;
+		
+	}
+}
+
+class LeftCurveTrack extends CurveTrack {
+
+	constructor ( tv, jobj ) {
+		super(tv, jobj);
+	}
+
+	calculateSpecifics() {
+		this.calculateStuffXY(this.tv.x, this.tv.y, this.tv.neswAngle, true);		
+	}
+	
+	calculateEndTv() {
+		return new TrackVector(this.calc.ex, this.calc.ey, this.tv.z, this.calc.newAngle, this.tv.elevAngle);
+	}
+	
+	getDisplayableObject( ) {
+
 		this.points = [];
 		this.places = [];
-		for (let i =0; i < lcNum; i++) {
-			let lcpt = lcp[i];
+		
+		for (let i =0; i < this.calc.pointPosition.length; i++) {                // 
+			let lcpt = {};
+			lcpt.x = this.calc.pointPosition[i].x;
+			lcpt.y = this.calc.pointPosition[i].y;
 			lcpt.z = this.tv.z;
 			this.points.push( lcpt );
 			this.places.push( false );
 		}
 
-		const geometry = new THREE.BufferGeometry().setFromPoints( curve.getPoints( 50 ) );
+		const geometry = new THREE.BufferGeometry().setFromPoints( this.points );
 		const material = new THREE.LineBasicMaterial( { color: this.color } );
 		
 		this.logPlacement(this.type+": from "+this.tv.asString()+" to "+this.endTv.asString());
@@ -921,122 +1074,39 @@ class LeftCurveTrack extends Track {
 		return [ new THREE.Line( geometry, material ) ];
 
 	}
-
+		
 }
 
-class RightCurveTrack extends Track {
-	
+class RightCurveTrack extends CurveTrack {
+
 	constructor ( tv, jobj ) {
-		super(tv);
-		this.radius = jobj["radius"];
-		this.angle = jobj["angle"];
-		this.color =  lookupColor( lookup( jobj , "color" , defaultTrackColor ));
-		this.type = "right";
-		this.logConstruct(JSON.stringify(this));
-		
-		this.cx = tv.x + (cvcos(tv.neswAngle-90) * this.radius);
-		this.cy = tv.y + (cvsin(tv.neswAngle-90) * this.radius);
-		
-		const beta = 90 - this.angle + tv.neswAngle;
-		
-		const ex = this.cx + (cvcos(beta) * this.radius);
-		const ey = this.cy + (cvsin(beta) * this.radius);
-		
-		const ea = tv.neswAngle - this.angle;
-		
-		this.fromAngle = (this.tv.neswAngle + 90)  / 180 * Math.PI;
-		this.toAngle =  (beta)  / 180 * Math.PI;
-		
-		this.endTv = new TrackVector(ex, ey, tv.z, ea, tv.elevAngle);
+		super(tv, jobj);
 	}
 
+	calculateSpecifics() {
+		this.calculateStuffXY(this.tv.x, this.tv.y, this.tv.neswAngle, false);		
+	}
+	
+	calculateEndTv() {
+		return new TrackVector(this.calc.ex, this.calc.ey, this.tv.z, this.calc.newAngle, this.tv.elevAngle);
+	}
+	
 	getDisplayableObject( ) {
 
-		const curve = new THREE.EllipseCurve(
-								this.cx,  this.cy, 
-								this.radius, this.radius,
- 								this.fromAngle,  this.toAngle ,
-								true,            // aClockwise
-								0                 // aRotation
-							);
 
-		let rcNum = Math.ceil(Math.PI * 2 * this.radius * this.angle / 360 / pointSeparation) + 1;
-		const rcp = curve.getPoints( rcNum );
 		this.points = [];
 		this.places = [];
-		for (let i =0; i < rcNum; i++) {
-			let rcpt = rcp[i];
-			rcpt.z = this.tv.z;
-			this.points.push( rcpt );
-			this.places.push( false );
-		}
-
-		const geometry = new THREE.BufferGeometry().setFromPoints( curve.getPoints( 50 ) );
-		const material = new THREE.LineBasicMaterial( { color: this.color } );
 		
-		this.logPlacement(this.type+": from "+this.tv.asString()+" to "+this.endTv.asString());
-		
-		return [ new THREE.Line( geometry, material ) ];
-
-	}
-// end right curve
-}
-
-// Still WIP
-class UpRampTrack extends Track {
-	
-	constructor ( tv, jobj ) {
-		super(tv);
-		this.radius = jobj["radius"];
-		this.angle = jobj["angle"];
-		this.color =  lookupColor( lookup( jobj , "color" , defaultTrackColor ));
-		this.type = "up";
-		this.logConstruct(JSON.stringify(this));
-		
-		let costest = cvcos(tv.elevAngle);
-		if ((costest < 0.99) & (costest > 0.01)) {
-			console.log("Up ramp not on a valid plane");
-		}
-		this.onY = true;	
-		
-		this.cx = tv.x + (cvcos(tv.neswAngle+90) * this.radius);
-		this.cy = tv.y + (cvsin(tv.neswAngle+90) * this.radius);
-		
-		const beta = 90 - tv.neswAngle;
-		
-		const ex = this.cx + (cvcos(this.angle-beta) * this.radius);
-		const ey = this.cy + (cvsin(this.angle-beta) * this.radius);
-		
-		const ea = tv.neswAngle + this.angle;
-		
-		this.fromAngle = (this.tv.neswAngle - 90)  / 180 * Math.PI;
-		this.toAngle =  (this.tv.neswAngle + this.angle - 90)  / 180 * Math.PI;
-		
-		this.endTv = new TrackVector(ex, ey, tv.z, ea, tv.elevAngle);
-	}
-
-	getDisplayableObject( ) {
-
-		const curve = new THREE.EllipseCurve(
-								this.cx,  this.cy, 
-								this.radius, this.radius,
- 								this.fromAngle,  this.toAngle ,
-								false,            // aClockwise
-								0                 // aRotation
-							);
-
-		let lcNum = Math.ceil(Math.PI * 2 * this.radius * this.angle / 360 / pointSeparation) + 1;
-		const lcp = curve.getPoints( lcNum );
-		this.points = [];
-		this.places = [];
-		for (let i =0; i < lcNum; i++) {
-			let lcpt = lcp[i];
+		for (let i =0; i < this.calc.pointPosition.length; i++) {                // 
+			let lcpt = {};
+			lcpt.x = this.calc.pointPosition[i].x;
+			lcpt.y = this.calc.pointPosition[i].y;
 			lcpt.z = this.tv.z;
 			this.points.push( lcpt );
 			this.places.push( false );
 		}
 
-		const geometry = new THREE.BufferGeometry().setFromPoints( curve.getPoints( 50 ) );
+		const geometry = new THREE.BufferGeometry().setFromPoints( this.points );
 		const material = new THREE.LineBasicMaterial( { color: this.color } );
 		
 		this.logPlacement(this.type+": from "+this.tv.asString()+" to "+this.endTv.asString());
@@ -1044,63 +1114,197 @@ class UpRampTrack extends Track {
 		return [ new THREE.Line( geometry, material ) ];
 
 	}
-
+	
 }
 
-// Still WIP
-class DownRampTrack extends Track {
-	
+
+class UpRampTrack extends CurveTrack {
+
 	constructor ( tv, jobj ) {
-		super(tv);
-		this.radius = jobj["radius"];
-		this.angle = jobj["angle"];
-		this.color =  lookupColor( lookup( jobj , "color" , defaultTrackColor ));
-		this.type = "right";
-		this.logConstruct(JSON.stringify(this));
-		
-		let costest = cvcos(tv.elevAngle);
-		if ((costest < 0.99) & (costest > 0.01)) {
-			console.log("Up ramp not on a valid plane");
-		}	
-		
-		this.cx = tv.x + (cvcos(tv.neswAngle-90) * this.radius);
-		this.cy = tv.y + (cvsin(tv.neswAngle-90) * this.radius);
-		
-		const beta = 90 - this.angle + tv.neswAngle;
-		
-		const ex = this.cx + (cvcos(beta) * this.radius);
-		const ey = this.cy + (cvsin(beta) * this.radius);
-		
-		const ea = tv.neswAngle - this.angle;
-		
-		this.fromAngle = (this.tv.neswAngle + 90)  / 180 * Math.PI;
-		this.toAngle =  (beta)  / 180 * Math.PI;
-		
-		this.endTv = new TrackVector(ex, ey, tv.z, ea, tv.elevAngle);
+		super(tv, jobj);
 	}
 
-	getDisplayableObject( ) {
+	calculateSpecifics() {
 
-		const curve = new THREE.EllipseCurve(
-								this.cx,  this.cy, 
-								this.radius, this.radius,
- 								this.fromAngle,  this.toAngle ,
-								true,            // aClockwise
-								0                 // aRotation
-							);
-
-		let rcNum = Math.ceil(Math.PI * 2 * this.radius * this.angle / 360 / pointSeparation) + 1;
-		const rcp = curve.getPoints( rcNum );
+		if (!this.toNesw()) {
+			console.log("Not on xz or yz plane");
+		}
+	
+		const calc = {};
+		const elev = this.tv.elevAngle;
+		let deltaSign = 1;
+		
+		if (this.tv.neswAngle == 0) {
+			calc.cx 	  	= this.tv.x + (cvcos(elev+90) * this.radius);
+			calc.cy 	  	= this.tv.z + (cvsin(elev+90) * this.radius);
+			calc.newAngle 	= elev + this.angle; 
+			calc.fromAngle 	= elev - 90;
+			calc.toAngle 	= elev - 90 + this.angle;
+		} else if (this.tv.neswAngle == 90) {
+			calc.cx 	  	= this.tv.y + (cvcos(elev+90) * this.radius);
+			calc.cy 	  	= this.tv.z + (cvsin(elev+90) * this.radius);
+			calc.newAngle 	= elev + this.angle; 
+			calc.fromAngle 	= elev - 90;
+			calc.toAngle 	= elev - 90 + this.angle;
+		} else if (this.tv.neswAngle == -90) {
+			calc.cx 	  	= this.tv.y - (cvcos(elev+90) * this.radius);
+			calc.cy 	  	= this.tv.z + (cvsin(elev+90) * this.radius);
+			calc.newAngle 	= elev + this.angle; 
+			calc.fromAngle 	= elev - 90;
+			calc.toAngle 	= elev - 90 - this.angle;
+			deltaSign = -1;
+		} else if (this.tv.neswAngle == -180) {
+			calc.cx 	  	= this.tv.x - (cvcos(elev+90) * this.radius);
+			calc.cy 	  	= this.tv.z + (cvsin(elev+90) * this.radius);
+			calc.newAngle 	= elev + this.angle; 
+			calc.fromAngle 	= elev - 90;
+			calc.toAngle 	= elev - 90 - this.angle;
+			deltaSign = -1;
+		} 
+		
+		let lcNum = Math.ceil(Math.PI * 2 * this.radius * this.angle / 360 / pointSeparation) + 1;
+		
+		calc.positions = [];
 		this.points = [];
 		this.places = [];
-		for (let i =0; i < rcNum; i++) {
-			let rcpt = rcp[i];
-			rcpt.z = this.tv.z;
-			this.points.push( rcpt );
+	
+		let delta = this.angle / lcNum * deltaSign;	
+		for (let i =0; i <= lcNum; i++) {                // 
+			let lcpt = {};
+			let tang = calc.fromAngle + i * delta;
+			lcpt.x = calc.cx + cvcos(tang) * this.radius;
+			lcpt.y = calc.cy + cvsin(tang) * this.radius;
+			calc.positions.push( lcpt );
+		}
+		
+		for (let i =0; i <= lcNum; i++) {                // 
+			let lcpt = {};
+			if ((this.tv.neswAngle == 0) | (this.tv.neswAngle == -180)) {
+				lcpt.x = calc.positions[i].x;
+				lcpt.y = this.tv.y;
+				lcpt.z = calc.positions[i].y;
+			} else {
+				lcpt.x = this.tv.y;
+				lcpt.y = calc.positions[i].x;
+				lcpt.z = calc.positions[i].y;
+			}
+			this.points.push( lcpt );
 			this.places.push( false );
 		}
 
-		const geometry = new THREE.BufferGeometry().setFromPoints( curve.getPoints( 50 ) );
+		calc.lcNum = lcNum;
+	
+		this.calc = calc;
+
+	}
+	
+	calculateEndTv() {
+
+		return new TrackVector(this.points[this.calc.lcNum].x, this.points[this.calc.lcNum].y, this.points[this.calc.lcNum].z, this.tv.neswAngle, this.calc.newAngle);
+
+	}
+	
+	getDisplayableObject( ) {
+
+		const geometry = new THREE.BufferGeometry().setFromPoints( this.points );
+		const material = new THREE.LineBasicMaterial( { color: this.color } );
+		
+		this.logPlacement(this.type+": from "+this.tv.asString()+" to "+this.endTv.asString());
+		
+		return [ new THREE.Line( geometry, material ) ];
+
+	}
+		
+}
+
+class DownRampTrack extends CurveTrack {
+
+	constructor ( tv, jobj ) {
+		super(tv, jobj);
+	}
+
+	calculateSpecifics() {
+
+		if (!this.toNesw()) {
+			console.log("Not on xz or yz plane");
+		}
+	
+		const calc = {};
+		const elev = this.tv.elevAngle;
+		let deltaSign = 1;
+		
+		if (this.tv.neswAngle == 0) {
+			calc.cx 	  	= this.tv.x + (cvcos(elev-90) * this.radius);
+			calc.cy 	  	= this.tv.z + (cvsin(elev-90) * this.radius);
+			calc.newAngle 	= elev - this.angle; 
+			calc.fromAngle 	= elev + 90;
+			calc.toAngle 	= elev + 90 - this.angle;
+		} else if (this.tv.neswAngle == 90) {
+			calc.cx 	  	= this.tv.y + (cvcos(elev-90) * this.radius);
+			calc.cy 	  	= this.tv.z + (cvsin(elev-90) * this.radius);
+			calc.newAngle 	= elev - this.angle; 
+			calc.fromAngle 	= elev + 90;
+			calc.toAngle 	= elev + 90 - this.angle;
+		} else if (this.tv.neswAngle == -90) {
+			calc.cx 	  	= this.tv.y - (cvcos(elev-90) * this.radius);
+			calc.cy 	  	= this.tv.z + (cvsin(elev-90) * this.radius);
+			calc.newAngle 	= elev - this.angle; 
+			calc.fromAngle 	= elev + 90;
+			calc.toAngle 	= elev + 90 + this.angle;
+			deltaSign = -1;
+		} else if (this.tv.neswAngle == -180) {
+			calc.cx 	  	= this.tv.x - (cvcos(elev-90) * this.radius);
+			calc.cy 	  	= this.tv.z + (cvsin(elev-90) * this.radius);
+			calc.newAngle 	= elev - this.angle; 
+			calc.fromAngle 	= elev - 90;
+			calc.toAngle 	= elev - 90 + this.angle;
+			deltaSign = 1;
+		} 
+		
+		let lcNum = Math.ceil(Math.PI * 2 * this.radius * this.angle / 360 / pointSeparation) + 1;
+		
+		calc.positions = [];
+		this.points = [];
+		this.places = [];
+	
+		let delta = this.angle / lcNum * deltaSign;	
+		for (let i =0; i <= lcNum; i++) {                // 
+			let lcpt = {};
+			lcpt.x = calc.cx + cvcos(calc.fromAngle + i * delta) * this.radius;
+			lcpt.y = calc.cy + cvsin(calc.fromAngle + i * delta) * this.radius;
+			calc.positions.push( lcpt );
+		}
+		
+		for (let i =0; i <= lcNum; i++) {                // 
+			let lcpt = {};
+			if ((this.tv.neswAngle == 0) | (this.tv.neswAngle == -180)) {
+				lcpt.x = calc.positions[i].x;
+				lcpt.y = this.tv.y;
+				lcpt.z = calc.positions[i].y;
+			} else {
+				lcpt.x = this.tv.y;
+				lcpt.y = calc.positions[i].x;
+				lcpt.z = calc.positions[i].y;
+			}
+			this.points.push( lcpt );
+			this.places.push( false );
+		}
+
+		calc.lcNum = lcNum;
+	
+		this.calc = calc;
+
+	}
+	
+	calculateEndTv() {
+
+		return new TrackVector(this.points[this.calc.lcNum].x, this.points[this.calc.lcNum].y, this.points[this.calc.lcNum].z, this.tv.neswAngle, this.calc.newAngle);
+
+	}
+	
+	getDisplayableObject( ) {
+
+		const geometry = new THREE.BufferGeometry().setFromPoints( this.points );
 		const material = new THREE.LineBasicMaterial( { color: this.color } );
 		
 		this.logPlacement(this.type+": from "+this.tv.asString()+" to "+this.endTv.asString());
@@ -1256,7 +1460,7 @@ class BallVehicle {
 	
 	getDisplayableObject( ) {
 
-		this.ballMesh = new THREE.Mesh( new THREE.SphereGeometry( 0.05, 5, 5 ), new THREE.MeshPhongMaterial( { color: this.color } ) ); 
+		this.ballMesh = new THREE.Mesh( new THREE.SphereGeometry( 0.05, 15, 15 ), new THREE.MeshPhongMaterial( { color: this.color } ) ); 
 		this.reposition();
 		return [ this.ballMesh ];
 
