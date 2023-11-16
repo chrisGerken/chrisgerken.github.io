@@ -8,7 +8,11 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
 const loggingConstructs = false;
-const loggingPlacement = false;
+const loggingPlacement = true;
+
+const PLANE_XY = "XY";
+const PLANE_XZ = "XZ";
+const PLANE_YZ = "YZ";
 
 let   pointSeparation = 0.05;
 let   ballSafeDistance = 3;
@@ -114,22 +118,22 @@ function lookupColor(name) {
 
 class TrackVector {
 
-	constructor( x, y, z, neswAngle, elevAngle) {
+	constructor( x, y, z, neswAngle, plane) {
 		this.x = x;
 		this.y = y;
 		this.z = z; 
 		this.neswAngle = neswAngle;
-		this.elevAngle = elevAngle;
+		this.plane = plane;
 	}	
 	
 	asString() {
-		return "( ("+this.x+","+this.y+","+this.z+") "+this.neswAngle+" "+this.elevAngle+" )";
+		return "( ("+this.x+","+this.y+","+this.z+") "+this.neswAngle+" on the "+this.plane+" plane )";
 	}
 }
 
 class SimpleTrackLayout {
 	
-	constructor( config, innerWidth , innerHeight) {
+	constructor( config, window) {
 		
 		this.config = config;
 		this.fluid = [ ];
@@ -146,33 +150,31 @@ class SimpleTrackLayout {
 			pos = {"x":0,"y":0,"z":3};	
 		}
 		
-		let trg = {};
-		if (config.camera.hasOwnProperty("target")) {
-			trg = config.camera.target;	
+		let lookAt = {};
+		if (config.camera.hasOwnProperty("lookAt")) {
+			lookAt = config.camera.lookAt;	
 		} else {
-			trg = {"x":0,"y":0,"z":0};	
+			lookAt = {"x":0,"y":0,"z":0};	
 		}
 //		if (!config.camera.hasOwnProperty("target")) {
 //			config.camera.target = {"x":0,"y":0,"z":0};	
 //		}
 		
 		this.scene = new THREE.Scene();
-		this.camera = new THREE.PerspectiveCamera( 75, innerWidth / innerHeight, 0.1, 1000 );
+		this.camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
 		this.camera.position.x = pos.x;
 		this.camera.position.y = pos.y;
 		this.camera.position.z = pos.z;
+		this.camera.lookAt(lookAt);
 
 		this.renderer = new THREE.WebGLRenderer();
-		this.renderer.setSize( innerWidth, innerHeight );
+		this.renderer.setSize( window.innerWidth, window.innerHeight );
 		
 		this.controls = new OrbitControls( this.camera, this.renderer.domElement );
+		this.controls.listenToKeyEvents(window);
 		this.camera.position.set( pos.x , pos.y , pos.z );
 //		this.camera.target = trg;
 		this.controls.update();	
-			
-		const light = new THREE.DirectionalLight(0xFFFFFF, 3);
-		light.position.set(-1, 2, 4);
-		this.scene.add(light);
 		
 		layout = this;
 
@@ -199,6 +201,15 @@ class SimpleTrackLayout {
 		}
 	}
 	
+	addLight( action) {
+		let lightColor = lookupColor( action["color"] );
+		let lightIntensity = lookup( action, "intensity", 1);
+		let lightPos = action["position"];
+		const light = new THREE.DirectionalLight(lightColor, lightIntensity);
+		light.position.set(lightPos.x, lightPos.y, lightPos.z);
+		this.scene.add(light);
+	}
+	
 	addStraight( action ) {
 		this.previousTrack = this.currentTrack;
 		this.currentTrack = new StraightTrack( this.currentTrack.endTv, action );
@@ -223,17 +234,9 @@ class SimpleTrackLayout {
 		return this.currentTrack;	
 	}
 	
-	addUpRamp( action ) {
+	addChangePlane( action ) {
 		this.previousTrack = this.currentTrack;
-		this.currentTrack = new UpRampTrack( this.currentTrack.endTv, action );
-		this.previousTrack.setNextTrack(this.currentTrack);
-		this.addFixed(this.currentTrack);
-		return this.currentTrack;	
-	}
-	
-	addDownRamp( action ) {
-		this.previousTrack = this.currentTrack;
-		this.currentTrack = new DownRampTrack( this.currentTrack.endTv, action );
+		this.currentTrack = new PlaneChanger( this.currentTrack.endTv , action );
 		this.previousTrack.setNextTrack(this.currentTrack);
 		this.addFixed(this.currentTrack);
 		return this.currentTrack;	
@@ -288,7 +291,7 @@ class SimpleTrackLayout {
 	
 	addGenerator( jobj ) {
 		let jobjtv = jobj["tv"];
-		let tv = new TrackVector(jobjtv["x"], jobjtv["y"], jobjtv["z"], jobjtv["neswAngle"], jobjtv["elevAngle"]);
+		let tv = new TrackVector(jobjtv["x"], jobjtv["y"], jobjtv["z"], jobjtv["neswAngle"], jobjtv["plane"]);
 		this.currentTrack = new RegularGenerator(tv, jobj);
 		this.addFluid( this.currentTrack );
 	}
@@ -409,16 +412,6 @@ class SimpleTrackLayout {
 			return;			
 		}
 		
-		if (type === "up") {
-			this.addUpRamp( action );
-			return;			
-		}
-		
-		if (type === "down") {
-			this.addDownRamp( action );
-			return;			
-		}
-		
 		if (type === "disposal") {
 			this.addDisposal( action );
 			return;			
@@ -444,6 +437,11 @@ class SimpleTrackLayout {
 			return;			
 		}
 		
+		if (type === "plane") {
+			this.addChangePlane( action );
+			return;			
+		}
+		
 		if (type === "connectTo") {
 			this.connectTo( action["label"] );
 			return;			
@@ -451,6 +449,11 @@ class SimpleTrackLayout {
 		
 		if (type === "setCurrent") {
 			this.setCurrentTrack( action["label"] );
+			return;			
+		}
+		
+		if (type === "light") {
+			this.addLight( action );
 			return;			
 		}
 		
@@ -539,6 +542,167 @@ class Track {
 	
 	crossedBy( vehicle ) {
 		
+	}
+
+	toNesw() {
+		
+		let cvc = cvcos(this.tv.neswAngle);
+		let cvs = cvsin(this.tv.neswAngle);
+
+		if (cvc > 0.999) {
+			this.tv.neswAngle = 0;
+			this.tv.dir = "E";
+		} else if (cvc < -0.999) {
+			this.tv.neswAngle = -180;
+			this.tv.dir = "W";
+		} else if (cvs > 0.999) {
+			this.tv.neswAngle = 90;
+			this.tv.dir = "N";
+		} else if (cvs < -0.999) {
+			this.tv.neswAngle = -90;
+			this.tv.dir = "S";
+		} else {
+			return false; 	
+		}
+		
+		return true;
+		
+	}
+	
+	xFrom( tv ) {
+		if (tv.plane == PLANE_XY) {
+			return tv.x;
+		} else if (tv.plane == PLANE_XZ) {
+			return tv.x;
+		} else if (tv.plane == PLANE_YZ) {
+			return tv.y;
+		} else {
+			console.log("Bad plane: "+JSON.stringify(tv));
+		}
+		return 0;
+	}
+	
+	yFrom( tv ) {
+		if (tv.plane == PLANE_XY) {
+			return tv.y;
+		} else if (tv.plane == PLANE_XZ) {
+			return tv.z;
+		} else if (tv.plane == PLANE_YZ) {
+			return tv.z;
+		} else {
+			console.log("Bad plane: "+JSON.stringify(tv));
+		}
+		return 0;
+	}
+	
+	zFrom( tv ) {
+		if (tv.plane == PLANE_XY) {
+			return tv.z;
+		} else if (tv.plane == PLANE_XZ) {
+			return tv.y;
+		} else if (tv.plane == PLANE_YZ) {
+			return tv.x;
+		} else {
+			console.log("Bad plane: "+JSON.stringify(tv));
+		}
+		return 0;
+	}
+
+	place( pointsArray ) {
+		
+		this.points = [];
+		this.places = [];
+
+		for (let i =0; i < pointsArray.length; i++) {
+   			let xformed = {};
+   			if (this.tv.plane === PLANE_XY) {
+				xformed.x = pointsArray[i].x;	   
+				xformed.y = pointsArray[i].y;	   
+				xformed.z = this.zFrom(this.tv);	   
+			} else if (this.tv.plane === PLANE_XZ) {
+				xformed.x = pointsArray[i].x;	   
+				xformed.y = this.zFrom(this.tv);	   
+				xformed.z = pointsArray[i].y;	   
+			} else if (this.tv.plane === PLANE_YZ) {
+				xformed.x = this.zFrom(this.tv);	   
+				xformed.y = pointsArray[i].x;	   
+				xformed.z = pointsArray[i].y;	   
+			} else {
+				console.log("Bad plane: "+this.tv.plane);
+			}
+   			this.points.push( xformed );
+   			this.places.push( false);
+		}
+
+	}
+
+	transform( tv ) {
+
+		let vx = tv.x;
+		let vy = tv.y;
+		let vz = tv.z;
+		
+  		if (tv.plane === PLANE_XY) {
+			tv.x = vx;	   
+			tv.y = vy;	   
+			tv.z = vz;	   
+		} else if (tv.plane === PLANE_XZ) {
+			tv.x = vx;	   
+			tv.y = vz;	   
+			tv.z = vy;	   
+		} else if (tv.plane === PLANE_YZ) {
+			tv.x = vz;	   
+			tv.y = vx;	   
+			tv.z = vy;	   
+		} else {
+			console.log("Bad plane: "+this.tv.plane);
+		}
+
+		return tv;
+	}
+}
+
+const changeConfig = {
+		"XY": {
+				"XY":{ "N": true, "E": true,  "S":true, "W":true,  "delta":0 },
+				"XZ":{ "N": false, "E": true, "S":false, "W":true, "delta":0 },
+				"YZ":{ "N": true, "E": false, "S":true, "W":false, "delta":-90 },
+			},
+		"XZ": {
+				"XY":{ "N": false, "E": true,  "S":false, "W":true,  "delta":0 },
+				"XZ":{ "N": true, "E": true,  "S":true, "W":true, "delta":0 },
+				"YZ":{ "N": true, "E": false, "S":true, "W":false, "delta":0 },
+			},
+		"YZ": {
+				"XY":{ "N": false, "E": true, "S":false, "W":true, "delta":90 },
+				"XZ":{ "N": true, "E": false, "S":true, "W":false, "delta":0 },
+				"YZ":{ "N": true, "E": true,  "S":true, "W":true,  "delta":0 },
+			},
+		};
+
+class PlaneChanger extends Track {
+	
+	constructor ( tv, jobj ) {
+		super (tv);
+		this.points = [];
+		this.places = [];
+		this.newPlane = jobj["plane"]; 
+		
+		if (!this.toNesw()) {
+			console.log("Can't change planes if dir is not N, S, E or W: "+JSON.stringify(jobj));
+		}
+
+		let xformConfig = changeConfig[tv.plane]; 
+		xformConfig = xformConfig[this.newPlane];
+		
+		if (!xformConfig[this.tv.dir]) {
+			console.log("Invalid plane change: "+tv.plane+" --> "+this.newPlane);
+		}
+
+		this.endTv = new TrackVector( tv.x, tv.y, tv.z, tv.neswAngle+xformConfig["delta"], this.newPlane);
+	} 	
+	getDisplayableObject( ) {
+		return [  ];	
 	}
 
 }
@@ -793,66 +957,6 @@ class SpraySwitch extends SwitchTrack {
 	
 }
 
-class StopSwitch extends SwitchTrack {
-	
-	constructor ( tv , label ) {
-		super (tv);
-		this.label = label;
-		this.type = "stop";
-		this.logConstruct(JSON.stringify(this));
-		this.endTv = tv;
-		this.nexts = [];
-		this.prevs = [];
-		this.places = [];
-		this.cycle = 4000;
-		this.stops = 80;
-		this.counter = 0;
-		this.open = true;
-		this.active = true;
-	}
-
-	getDisplayableObject( ) {
-
-		const soMesh = new THREE.Mesh( new THREE.SphereGeometry( 0.02, 3, 3 ), new THREE.MeshBasicMaterial( { color: 0x888888 } ) ); 
-		soMesh.position.set(this.tv.x,this.tv.y,this.tv.z);
-		
-		this.logPlacement(this.type+": on "+this.tv.asString());
-		
-		return [ soMesh ];
-
-	}
-
-	move() {
-		this.counter++;
-		if ((this.counter % this.cycle) == 0) {
-			this.open = true;
-		}
-		if ((this.counter % this.cycle) == this.stops) {
-			this.open = false;
-		}
-	}
-	
-	getNextTrack(vehicle) {
-		return this.nextTrack;	
-	}
-	
-	setNextTrack( track ) {
-		this.nextTrack = track;
-		track.setPrevTrack(this);
-	}
-	
-	getPrevTrack() {
-		if (!this.open) {
-			return this;
-		}
-		return this.prevTrack;	
-	}
-	
-	setPrevTrack( track ) {
-		this.prevTrack = track;
-	}
-	
-}
 
 class StraightTrack extends Track  {
 	
@@ -862,28 +966,40 @@ class StraightTrack extends Track  {
 		this.color =  lookupColor( lookup( jobj , "color" , defaultTrackColor ));
 		this.type = "straight";
 		this.logConstruct(JSON.stringify(this));
-		this.endTv = new TrackVector(tv.x+(this.length*cvcos(tv.neswAngle)), tv.y+(this.length*cvsin(tv.neswAngle)), tv.z, tv.neswAngle, tv.elevAngle);
 	}
 
 	getDisplayableObject( ) {
-		const lineMaterial = new THREE.LineBasicMaterial( { color: this.color } );
+		
+		let linePoints = Math.ceil(this.length / pointSeparation);
+
+		let deltaX = (this.length * cvcos(this.tv.neswAngle)) / linePoints;
+		let deltaY = (this.length * cvsin(this.tv.neswAngle)) / linePoints;
+
+		let vx = this.xFrom(this.tv);
+		let vy = this.yFrom(this.tv);
+		let vz = this.zFrom(this.tv);
+		
+		let pointArray = [];
+		for (let i =0; i <= linePoints; i++) {
+			let point = {  
+					"x": deltaX * i + vx, 
+					"y": deltaY * i + vy, 
+					"z": vz };
+   			pointArray.push(point);
+		}
+		
+		this.place(pointArray);
+		
 		const stPoints = [];
-		stPoints.push( new THREE.Vector3( this.tv.x, this.tv.y, this.tv.z ) );
-		stPoints.push( new THREE.Vector3( this.endTv.x, this.endTv.y, this.endTv.z ) );
+		stPoints.push( this.points[0] );
+		let lastPoint = this.points[this.points.length-1];
+		stPoints.push( lastPoint );
+
+		this.endTv = new TrackVector(lastPoint.x, lastPoint.y, lastPoint.z, this.tv.neswAngle, this.tv.plane);
 			
+		const lineMaterial = new THREE.LineBasicMaterial( { color: this.color } );
 		const lineGeometry = new THREE.BufferGeometry().setFromPoints( stPoints );			
 		const line = new THREE.Line( lineGeometry, lineMaterial );
-
-		let linePoints = Math.ceil(this.length / pointSeparation);
-		this.points = [];
-		this.places = [];
-		let deltaX = (this.endTv.x-this.tv.x) / linePoints;
-		let deltaY = (this.endTv.y-this.tv.y) / linePoints;
-		let deltaZ = (this.endTv.z-this.tv.z) / linePoints;
-		for (let i =0; i < linePoints; i++) {
-   			this.points.push(new THREE.Vector3( deltaX * i + this.tv.x, deltaY * i + this.tv.y, deltaZ * i + this.tv.z));
-   			this.places.push( false);
-		}
 		
 		this.logPlacement(this.type+": from "+this.tv.asString()+" to "+this.endTv.asString());
 		
@@ -953,7 +1069,9 @@ class CurveTrack extends Track {
 							);
 	
 		this.lcNum = Math.ceil(Math.PI * 2 * this.radius * this.angle / 360 / pointSeparation) + 1;
-		this.calc.pointPosition = curve.getPoints( this.lcNum );
+		let pointsArray = curve.getPoints( this.lcNum );
+		
+		this.place( pointsArray);
 	
 	}
 	
@@ -1015,27 +1133,6 @@ class CurveTrack extends Track {
 		this.calc.ey = this.calc.pointPosition[this.lcNum].y;
 	
 	}
-
-	toNesw() {
-		
-		let cvc = cvcos(this.tv.neswAngle);
-		let cvs = cvsin(this.tv.neswAngle);
-
-		if (cvc > 0.999) {
-			this.tv.neswAngle = 0;
-		} else if (cvc < 0.999) {
-			this.tv.neswAngle = -180;
-		} else if (cvs > 0.999) {
-			this.tv.neswAngle = 90;
-		} else if (cvs < 0.999) {
-			this.tv.neswAngle = -90;
-		} else {
-			return false; 	
-		}
-		
-		return true;
-		
-	}
 }
 
 class LeftCurveTrack extends CurveTrack {
@@ -1045,26 +1142,20 @@ class LeftCurveTrack extends CurveTrack {
 	}
 
 	calculateSpecifics() {
-		this.calculateStuffXY(this.tv.x, this.tv.y, this.tv.neswAngle, true);		
+		
+		let vx = this.xFrom(this.tv);
+		let vy = this.yFrom(this.tv);
+
+		this.calculateStuffXY(vx, vy, this.tv.neswAngle, true);		
 	}
 	
 	calculateEndTv() {
-		return new TrackVector(this.calc.ex, this.calc.ey, this.tv.z, this.calc.newAngle, this.tv.elevAngle);
+		let lastPoint = this.points[this.points.length-1];
+		return new TrackVector(lastPoint.x, lastPoint.y, lastPoint.z, this.calc.newAngle, this.tv.plane);
+//		return this.transform( new TrackVector(this.calc.x, this.calc.ey, this.tv.z, this.calc.newAngle, this.tv.plane) );
 	}
 	
 	getDisplayableObject( ) {
-
-		this.points = [];
-		this.places = [];
-		
-		for (let i =0; i < this.calc.pointPosition.length; i++) {                // 
-			let lcpt = {};
-			lcpt.x = this.calc.pointPosition[i].x;
-			lcpt.y = this.calc.pointPosition[i].y;
-			lcpt.z = this.tv.z;
-			this.points.push( lcpt );
-			this.places.push( false );
-		}
 
 		const geometry = new THREE.BufferGeometry().setFromPoints( this.points );
 		const material = new THREE.LineBasicMaterial( { color: this.color } );
@@ -1084,124 +1175,17 @@ class RightCurveTrack extends CurveTrack {
 	}
 
 	calculateSpecifics() {
-		this.calculateStuffXY(this.tv.x, this.tv.y, this.tv.neswAngle, false);		
+
+		let vx = this.xFrom(this.tv);
+		let vy = this.yFrom(this.tv);
+
+		this.calculateStuffXY(vx, vy, this.tv.neswAngle, false);		
 	}
 	
 	calculateEndTv() {
-		return new TrackVector(this.calc.ex, this.calc.ey, this.tv.z, this.calc.newAngle, this.tv.elevAngle);
-	}
-	
-	getDisplayableObject( ) {
-
-
-		this.points = [];
-		this.places = [];
-		
-		for (let i =0; i < this.calc.pointPosition.length; i++) {                // 
-			let lcpt = {};
-			lcpt.x = this.calc.pointPosition[i].x;
-			lcpt.y = this.calc.pointPosition[i].y;
-			lcpt.z = this.tv.z;
-			this.points.push( lcpt );
-			this.places.push( false );
-		}
-
-		const geometry = new THREE.BufferGeometry().setFromPoints( this.points );
-		const material = new THREE.LineBasicMaterial( { color: this.color } );
-		
-		this.logPlacement(this.type+": from "+this.tv.asString()+" to "+this.endTv.asString());
-		
-		return [ new THREE.Line( geometry, material ) ];
-
-	}
-	
-}
-
-
-class UpRampTrack extends CurveTrack {
-
-	constructor ( tv, jobj ) {
-		super(tv, jobj);
-	}
-
-	calculateSpecifics() {
-
-		if (!this.toNesw()) {
-			console.log("Not on xz or yz plane");
-		}
-	
-		const calc = {};
-		const elev = this.tv.elevAngle;
-		let deltaSign = 1;
-		
-		if (this.tv.neswAngle == 0) {
-			calc.cx 	  	= this.tv.x + (cvcos(elev+90) * this.radius);
-			calc.cy 	  	= this.tv.z + (cvsin(elev+90) * this.radius);
-			calc.newAngle 	= elev + this.angle; 
-			calc.fromAngle 	= elev - 90;
-			calc.toAngle 	= elev - 90 + this.angle;
-		} else if (this.tv.neswAngle == 90) {
-			calc.cx 	  	= this.tv.y + (cvcos(elev+90) * this.radius);
-			calc.cy 	  	= this.tv.z + (cvsin(elev+90) * this.radius);
-			calc.newAngle 	= elev + this.angle; 
-			calc.fromAngle 	= elev - 90;
-			calc.toAngle 	= elev - 90 + this.angle;
-		} else if (this.tv.neswAngle == -90) {
-			calc.cx 	  	= this.tv.y - (cvcos(elev+90) * this.radius);
-			calc.cy 	  	= this.tv.z + (cvsin(elev+90) * this.radius);
-			calc.newAngle 	= elev + this.angle; 
-			calc.fromAngle 	= elev - 90;
-			calc.toAngle 	= elev - 90 - this.angle;
-			deltaSign = -1;
-		} else if (this.tv.neswAngle == -180) {
-			calc.cx 	  	= this.tv.x - (cvcos(elev+90) * this.radius);
-			calc.cy 	  	= this.tv.z + (cvsin(elev+90) * this.radius);
-			calc.newAngle 	= elev + this.angle; 
-			calc.fromAngle 	= elev - 90;
-			calc.toAngle 	= elev - 90 - this.angle;
-			deltaSign = -1;
-		} 
-		
-		let lcNum = Math.ceil(Math.PI * 2 * this.radius * this.angle / 360 / pointSeparation) + 1;
-		
-		calc.positions = [];
-		this.points = [];
-		this.places = [];
-	
-		let delta = this.angle / lcNum * deltaSign;	
-		for (let i =0; i <= lcNum; i++) {                // 
-			let lcpt = {};
-			let tang = calc.fromAngle + i * delta;
-			lcpt.x = calc.cx + cvcos(tang) * this.radius;
-			lcpt.y = calc.cy + cvsin(tang) * this.radius;
-			calc.positions.push( lcpt );
-		}
-		
-		for (let i =0; i <= lcNum; i++) {                // 
-			let lcpt = {};
-			if ((this.tv.neswAngle == 0) | (this.tv.neswAngle == -180)) {
-				lcpt.x = calc.positions[i].x;
-				lcpt.y = this.tv.y;
-				lcpt.z = calc.positions[i].y;
-			} else {
-				lcpt.x = this.tv.y;
-				lcpt.y = calc.positions[i].x;
-				lcpt.z = calc.positions[i].y;
-			}
-			this.points.push( lcpt );
-			this.places.push( false );
-		}
-
-		calc.lcNum = lcNum;
-	
-		this.calc = calc;
-
-	}
-	
-	calculateEndTv() {
-
-		return new TrackVector(this.points[this.calc.lcNum].x, this.points[this.calc.lcNum].y, this.points[this.calc.lcNum].z, this.tv.neswAngle, this.calc.newAngle);
-
+		let lastPoint = this.points[this.points.length-1];
+		return new TrackVector(lastPoint.x, lastPoint.y, lastPoint.z, this.calc.newAngle, this.tv.plane);
+//		return this.transform( new TrackVector(this.calc.ex, this.calc.ey, this.tv.z, this.calc.newAngle, this.tv.plane) );
 	}
 	
 	getDisplayableObject( ) {
@@ -1214,106 +1198,9 @@ class UpRampTrack extends CurveTrack {
 		return [ new THREE.Line( geometry, material ) ];
 
 	}
-		
+	
 }
 
-class DownRampTrack extends CurveTrack {
-
-	constructor ( tv, jobj ) {
-		super(tv, jobj);
-	}
-
-	calculateSpecifics() {
-
-		if (!this.toNesw()) {
-			console.log("Not on xz or yz plane");
-		}
-	
-		const calc = {};
-		const elev = this.tv.elevAngle;
-		let deltaSign = 1;
-		
-		if (this.tv.neswAngle == 0) {
-			calc.cx 	  	= this.tv.x + (cvcos(elev-90) * this.radius);
-			calc.cy 	  	= this.tv.z + (cvsin(elev-90) * this.radius);
-			calc.newAngle 	= elev - this.angle; 
-			calc.fromAngle 	= elev + 90;
-			calc.toAngle 	= elev + 90 - this.angle;
-		} else if (this.tv.neswAngle == 90) {
-			calc.cx 	  	= this.tv.y + (cvcos(elev-90) * this.radius);
-			calc.cy 	  	= this.tv.z + (cvsin(elev-90) * this.radius);
-			calc.newAngle 	= elev - this.angle; 
-			calc.fromAngle 	= elev + 90;
-			calc.toAngle 	= elev + 90 - this.angle;
-		} else if (this.tv.neswAngle == -90) {
-			calc.cx 	  	= this.tv.y - (cvcos(elev-90) * this.radius);
-			calc.cy 	  	= this.tv.z + (cvsin(elev-90) * this.radius);
-			calc.newAngle 	= elev - this.angle; 
-			calc.fromAngle 	= elev + 90;
-			calc.toAngle 	= elev + 90 + this.angle;
-			deltaSign = -1;
-		} else if (this.tv.neswAngle == -180) {
-			calc.cx 	  	= this.tv.x - (cvcos(elev-90) * this.radius);
-			calc.cy 	  	= this.tv.z + (cvsin(elev-90) * this.radius);
-			calc.newAngle 	= elev - this.angle; 
-			calc.fromAngle 	= elev - 90;
-			calc.toAngle 	= elev - 90 + this.angle;
-			deltaSign = 1;
-		} 
-		
-		let lcNum = Math.ceil(Math.PI * 2 * this.radius * this.angle / 360 / pointSeparation) + 1;
-		
-		calc.positions = [];
-		this.points = [];
-		this.places = [];
-	
-		let delta = this.angle / lcNum * deltaSign;	
-		for (let i =0; i <= lcNum; i++) {                // 
-			let lcpt = {};
-			lcpt.x = calc.cx + cvcos(calc.fromAngle + i * delta) * this.radius;
-			lcpt.y = calc.cy + cvsin(calc.fromAngle + i * delta) * this.radius;
-			calc.positions.push( lcpt );
-		}
-		
-		for (let i =0; i <= lcNum; i++) {                // 
-			let lcpt = {};
-			if ((this.tv.neswAngle == 0) | (this.tv.neswAngle == -180)) {
-				lcpt.x = calc.positions[i].x;
-				lcpt.y = this.tv.y;
-				lcpt.z = calc.positions[i].y;
-			} else {
-				lcpt.x = this.tv.y;
-				lcpt.y = calc.positions[i].x;
-				lcpt.z = calc.positions[i].y;
-			}
-			this.points.push( lcpt );
-			this.places.push( false );
-		}
-
-		calc.lcNum = lcNum;
-	
-		this.calc = calc;
-
-	}
-	
-	calculateEndTv() {
-
-		return new TrackVector(this.points[this.calc.lcNum].x, this.points[this.calc.lcNum].y, this.points[this.calc.lcNum].z, this.tv.neswAngle, this.calc.newAngle);
-
-	}
-	
-	getDisplayableObject( ) {
-
-		const geometry = new THREE.BufferGeometry().setFromPoints( this.points );
-		const material = new THREE.LineBasicMaterial( { color: this.color } );
-		
-		this.logPlacement(this.type+": from "+this.tv.asString()+" to "+this.endTv.asString());
-		
-		return [ new THREE.Line( geometry, material ) ];
-
-	}
-
-}
 
 class RegularGenerator extends Track {
 	

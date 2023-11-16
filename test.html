@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 	<head>
-		<title>three.js webgl - Waterfalls</title>
+		<title>three.js webgl - test</title>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 		<link type="text/css" rel="stylesheet" href="main.css">
@@ -38,10 +38,10 @@
 			    return Httpreq.responseText;          
 			}
 
-			let jsonLayout = JSON.parse(fetchLayout('waterfalls.json'));
+			let jsonLayout = JSON.parse(fetchLayout('test.json'));
 	            
 	        const elem = document.getElementById('screen');
-	        
+	            
             const layout = new VEHICLE.SimpleTrackLayout(jsonLayout, window);
 			elem.appendChild( layout.getDomElement() );
 //			document.body.appendChild( layout.getDomElement() );
