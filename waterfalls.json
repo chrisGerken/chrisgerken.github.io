@@ -14,24 +14,27 @@
 		{"type":"defineColor","name":"yellow","r":136,"g":136,"b":0} ,
 		{"type":"defineColor","name":"red","r":136,"g":0,"b":0} ,
 		{"type":"defineColor","name":"grey","r":169,"g":169,"b":169} ,
+		{"type":"defineColor","name":"white","r":255,"g":255,"b":255} ,
 
-		{"type":"generator","every":15,"max":200,"balls":[{"color":"blue","speed":3}], "tv": {"x":-2.8, "y":1.9, "z":0, "neswAngle":-90, "elevAngle":0  }} ,
+		{"type":"light","kind":"directional","position":{"x":0, "y":0, "z":4},"color":"white"} ,
+
+		{"type":"generator","every":15,"max":200,"balls":[{"color":"blue","speed":3}], "tv": {"x":-2.8, "y":1.9, "z":0, "neswAngle":-90, "plane":"XY"  }} ,
 		{"type":"straight","length":0.2} ,
 		{"type":"sprayer","label":"a1"} ,
 
-		{"type":"generator","every":15,"max":200,"balls":[{"color":"red","speed":3}], "tv": {"x":-2.6, "y":1.9, "z":0, "neswAngle":-90, "elevAngle":0  }} ,
+		{"type":"generator","every":15,"max":200,"balls":[{"color":"red","speed":3}], "tv": {"x":-2.6, "y":1.9, "z":0, "neswAngle":-90, "plane":"XY"  }} ,
 		{"type":"straight","length":0.2} ,
 		{"type":"sprayer","label":"b1"} ,
 
-		{"type":"generator","every":15,"max":200,"balls":[{"color":"yellow","speed":3}], "tv": {"x":-2.4, "y":1.9, "z":0, "neswAngle":-90, "elevAngle":0  }} ,
+		{"type":"generator","every":15,"max":200,"balls":[{"color":"yellow","speed":3}], "tv": {"x":-2.4, "y":1.9, "z":0, "neswAngle":-90, "plane":"XY"  }} ,
 		{"type":"straight","length":0.2} ,
 		{"type":"sprayer","label":"c1"} ,
 
-		{"type":"generator","every":15,"max":200,"balls":[{"color":"purple","speed":3}], "tv": {"x":-2.2, "y":1.9, "z":0, "neswAngle":-90, "elevAngle":0  }} ,
+		{"type":"generator","every":15,"max":200,"balls":[{"color":"purple","speed":3}], "tv": {"x":-2.2, "y":1.9, "z":0, "neswAngle":-90, "plane":"XY"  }} ,
 		{"type":"straight","length":0.2} ,
 		{"type":"sprayer","label":"d1"} ,
 
-		{"type":"generator","every":15,"max":200,"balls":[{"color":"green","speed":3}], "tv": {"x":-2.0, "y":1.9, "z":0, "neswAngle":-90, "elevAngle":0  }} ,
+		{"type":"generator","every":15,"max":200,"balls":[{"color":"green","speed":3}], "tv": {"x":-2.0, "y":1.9, "z":0, "neswAngle":-90, "plane":"XY"  }} ,
 		{"type":"straight","length":0.2} ,
 		{"type":"sprayer","label":"e1"} ,
 		

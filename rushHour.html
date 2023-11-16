@@ -42,7 +42,7 @@
 	            
 	        const elem = document.getElementById('screen');
 	            
-            const layout = new VEHICLE.SimpleTrackLayout(jsonLayout, window.innerWidth , window.innerHeight);
+            const layout = new VEHICLE.SimpleTrackLayout(jsonLayout, window);
 			elem.appendChild( layout.getDomElement() );
 //			document.body.appendChild( layout.getDomElement() );
 			layout.layout();

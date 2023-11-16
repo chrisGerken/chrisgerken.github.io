@@ -13,7 +13,10 @@
 		{"type":"defineColor","name":"blue","r":0,"g":0,"b":136} ,
 		{"type":"defineColor","name":"magenta","r":136,"g":0,"b":136} ,
 		{"type":"defineColor","name":"grey","r":169,"g":169,"b":169} ,
-		{"every":20,"max":200,"balls":[{"color":"red"},{"color":"yellow"},{"color":"blue"},{"color":"magenta"}],"type":"generator", "tv": {"x":-2.5, "y":1.0, "z":0, "neswAngle":-90, "elevAngle":0  }} ,
+		{"type":"defineColor","name":"white","r":255,"g":255,"b":255} ,
+
+		{"type":"light","kind":"directional","position":{"x":2, "y":2, "z":3},"color":"white","intensity":5} ,
+		{"type":"generator", "every":20,"max":200,"balls":[{"color":"red"},{"color":"yellow"},{"color":"blue"},{"color":"magenta"}],"tv": {"x":-2.5, "y":1.0, "z":0, "neswAngle":-90, "plane":"XY"  } } ,
 		{"length":1.4,"type":"straight"} ,
 		{"radius":0.2,"angle":90,"type":"left"} ,
 		{"length":0.15,"type":"straight"} ,
