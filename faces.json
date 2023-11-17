@@ -22,7 +22,10 @@
 		{"type":"light","kind":"directional","position":{"x":0, "y":0, "z":4},"color":"white","intensity":3} ,
 
 
-		{"type":"generator","every":20,"balls":[{"color":"red"}], "tv": {"x":0, "y":0, "z":0, "neswAngle":0, "plane":"YZ"  }} ,
+		{"type":"generator","every":7,"max":81,"balls":[{"color":"red","speed":3}], "tv": {"x":0, "y":0, "z":0, "neswAngle":0, "plane":"YZ"  }} ,
+		{"type":"straight","length":0.01} ,
+		{"type":"switch","label":"sw01"} ,
+
 
 		{"type":"straight","length":1.0} ,
 		{"type":"left","radius":0.1,"angle":90} ,
@@ -72,13 +75,18 @@
 		{"type":"plane","plane":"XY"} ,
 		{"type":"right","radius":0.1,"angle":90} ,
 		{"type":"right","radius":0.1,"angle":90} ,
-		{"type":"straight","length":1.0} ,
-		{"type":"disposal"} ,
+		{"type":"straight","length":0.5} ,
+		{"type":"plane","plane":"YZ"} ,
+		{"type":"left","radius":0.1,"angle":90} ,
+		{"type":"straight","length":0.5} ,
+		{"type":"connectTo","label":"sw01"} ,
 
 
 
 
-		{"type":"generator","every":20,"balls":[{"color":"blue"}], "tv": {"x":0, "y":-0.2, "z":0.2, "neswAngle":90, "plane":"YZ"  }} ,
+		{"type":"generator","every":10,"max":84,"balls":[{"color":"blue","speed":2}], "tv": {"x":0, "y":-0.2, "z":0.2, "neswAngle":90, "plane":"YZ"  }} ,
+		{"type":"straight","length":0.01} ,
+		{"type":"switch","label":"sw02"} ,
 
 		{"type":"straight","length":1.0} ,
 		{"type":"plane","plane":"XZ"} ,
@@ -129,15 +137,21 @@
 		{"type":"left","radius":0.1,"angle":90} ,
 		{"type":"straight","length":0.5} ,
 		{"type":"plane","plane":"YZ"} ,
-		{"type":"right","radius":0.05,"angle":180} ,
-		{"type":"straight","length":1.0} ,
-		{"type":"disposal"} ,
+		{"type":"right","radius":0.075,"angle":180} ,
+		{"type":"straight","length":0.6} ,
+		{"type":"plane","plane":"XZ"} ,
+		{"type":"right","radius":0.1,"angle":90} ,
+		{"type":"straight","length":0.5} ,
+		{"type":"connectTo","label":"sw02"} ,
 
 
 
 
 
-		{"type":"generator","every":20,"balls":[{"color":"yellow"}], "tv": {"x":0.2, "y":-0.2, "z":0, "neswAngle":90, "plane":"XZ"  }} ,
+		{"type":"generator","every":20,"max":84,"balls":[{"color":"yellow"}], "tv": {"x":0.2, "y":-0.2, "z":0, "neswAngle":90, "plane":"XZ"  }} ,
+		{"type":"straight","length":0.01} ,
+		{"type":"switch","label":"sw03"} ,
+
 
 		{"type":"straight","length":1.1} ,
 		{"type":"plane","plane":"XZ"} ,
@@ -187,15 +201,18 @@
 		{"type":"straight","length":0.3} ,
 		{"type":"right","radius":0.1,"angle":90} ,
 		{"type":"plane","plane":"XY"} ,
-		{"type":"straight","length":0.5} ,
+		{"type":"straight","length":0.4} ,
 		{"type":"right","radius":0.1,"angle":90} ,
-		{"type":"straight","length":0.1} ,
+		{"type":"straight","length":0.2} ,
 		{"type":"plane","plane":"XZ"} ,
 		{"type":"right","radius":0.1,"angle":90} ,
 		{"type":"straight","length":0.1} ,
 		{"type":"right","radius":0.05,"angle":90} ,
-		{"type":"straight","length":1.0} ,
-		{"type":"disposal"} 
+		{"type":"straight","length":0.2} ,
+		{"type":"plane","plane":"XY"} ,
+		{"type":"left","radius":0.1,"angle":90} ,
+		{"type":"straight","length":0.3} ,
+		{"type":"connectTo","label":"sw03"}
 
 		
 		]

@@ -1,14 +1,14 @@
 { 
 	"name":"Saucers", 
 	"camera": {
-		"position": {"x":-3.1,"y":0.1,"z":2.8},
-		"lookAt": 	{"x":3,"y":0,"z":0}
+		"position": {"x":-5,"y":0,"z":4},
+		"lookAt": 	{"x":4,"y":2,"z":0}
 	},
 	"layout":[
 
 
 		{"type":"setting","name":"pointSeparation","value":0.01} ,
-		{"type":"setting","name":"ballSafeDistance","value":5} ,
+		{"type":"setting","name":"ballSafeDistance","value":11} ,
 		{"type":"setting","name":"defaultTrackColor","value":"darkgrey"} ,
 		{"type":"defineColor","name":"white","r":255,"g":255,"b":255} ,
 		{"type":"defineColor","name":"red","r":136,"g":0,"b":0} ,
@@ -20,7 +20,7 @@
 		{"type":"defineColor","name":"darkgrey","r":100,"g":100,"b":100} ,
 		{"type":"defineColor","name":"grey","r":169,"g":169,"b":169} ,
 
-		{"type":"light","kind":"directional","position":{"x":0, "y":0, "z":4},"color":"white","intensity":3} ,
+		{"type":"light","kind":"directional","position":{"x":0, "y":0, "z":4},"color":"white","intensity":5} ,
 
 
 		{"type":"block","label":"spiral-s","layout":[
@@ -47,14 +47,14 @@
 			{"type":"plane","plane":"XY"} 
 			]} ,
 
-		{"type":"generator","every":10,"balls":[{"color":"grey","speed":2}], "tv": {"x":3, "y":1, "z":2.5, "neswAngle":-90, "plane":"XY"  }} ,
+		{"type":"generator","every":10,"max":250,"balls":[{"color":"grey","speed":2}], "tv": {"x":3, "y":1, "z":2.5, "neswAngle":-90, "plane":"XY"  }} ,
 		{"type":"straight","length":1} ,
 		{"type":"right","radius":0.05,"angle":90} ,
 		{"type":"switch","label":"sw01"} ,
 		{"type":"straight","length":2.775} ,
 		{"type":"plane","plane":"XZ"} ,
 		{"type":"left","radius":0.05,"angle":90} ,
-		{"type":"switch","label":"sw02"} ,
+		{"type":"sprayer","label":"sw02"} ,
 		
 		{"type":"straight","length":0.1} ,
 		{"type":"plane","plane":"YZ"} ,
@@ -69,7 +69,45 @@
 		{"type":"straight","length":2} ,
 		{"type":"switch","label":"v03"} ,
 		{"type":"straight","length":2} ,
-		{"type":"disposal"}  ,
+		{"type":"right","radius":0.05,"angle":90} ,
+		{"type":"straight","length":0.9} ,
+		{"type":"plane","plane":"YZ"} ,
+		{"type":"right","radius":0.05,"angle":90} ,
+		{"type":"switch","label":"v07"} ,		
+		{"type":"straight","length":0.2} ,
+		{"type":"right","radius":0.05,"angle":90} ,
+		{"type":"straight","length":0.2} ,
+		{"type":"left","radius":0.05,"angle":180} ,
+		{"type":"straight","length":1.9} ,
+		{"type":"right","radius":0.05,"angle":180} ,
+		{"type":"straight","length":1.9} ,
+		{"type":"left","radius":0.05,"angle":180} ,
+		{"type":"straight","length":1.9} ,
+		{"type":"right","radius":0.05,"angle":180} ,
+		{"type":"straight","length":1.9} ,
+		{"type":"left","radius":0.05,"angle":180} ,
+		{"type":"straight","length":1.9} ,
+		{"type":"right","radius":0.05,"angle":180} ,
+		{"type":"straight","length":1.9} ,
+		{"type":"left","radius":0.05,"angle":180} ,
+		{"type":"straight","length":1.9} ,
+		{"type":"right","radius":0.05,"angle":180} ,
+		{"type":"straight","length":1.9} ,
+		{"type":"left","radius":0.05,"angle":180} ,
+		{"type":"straight","length":1.9} ,
+		{"type":"right","radius":0.05,"angle":180} ,
+		{"type":"straight","length":1.9} ,
+		{"type":"left","radius":0.05,"angle":180} ,
+		{"type":"straight","length":1.9} ,
+		{"type":"right","radius":0.05,"angle":180} ,
+		{"type":"straight","length":0.9} ,
+		{"type":"plane","plane":"XY"} ,
+		{"type":"left","radius":0.05,"angle":90} ,
+		{"type":"painter","color":"grey"} ,
+		{"type":"straight","length":1.0} ,
+		{"type":"stop","frequency":3100,"starts":0,"stops":1600} ,
+		{"type":"straight","length":0.2} ,
+		{"type":"connectTo","label":"sw01"} ,
 			
 		{"type":"setCurrent","label":"sw03"} ,
 		{"type":"right","radius":0.05,"angle":90} ,
@@ -82,7 +120,11 @@
 		{"type":"straight","length":2} ,
 		{"type":"switch","label":"v06"} ,
 		{"type":"straight","length":2} ,
-		{"type":"disposal"}  ,
+		{"type":"left","radius":0.05,"angle":90} ,
+		{"type":"straight","length":0.9} ,
+		{"type":"plane","plane":"YZ"} ,
+		{"type":"left","radius":0.05,"angle":90} ,
+		{"type":"connectTo","label":"v07"} ,
 			
 		{"type":"setCurrent","label":"sw02"} ,
 		{"type":"left","radius":0.05,"angle":90} ,
