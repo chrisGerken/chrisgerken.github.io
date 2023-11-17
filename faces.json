@@ -26,6 +26,7 @@
 		{"type":"straight","length":0.01} ,
 		{"type":"switch","label":"sw01"} ,
 
+
 		{"type":"straight","length":1.0} ,
 		{"type":"left","radius":0.1,"angle":90} ,
 		{"type":"plane","plane":"XZ"} ,
@@ -150,6 +151,7 @@
 		{"type":"generator","every":20,"max":84,"balls":[{"color":"yellow"}], "tv": {"x":0.2, "y":-0.2, "z":0, "neswAngle":90, "plane":"XZ"  }} ,
 		{"type":"straight","length":0.01} ,
 		{"type":"switch","label":"sw03"} ,
+
 
 		{"type":"straight","length":1.1} ,
 		{"type":"plane","plane":"XZ"} ,
