@@ -235,11 +235,13 @@ class SimpleTrackLayout {
 	}
 	
 	addChangePlane( action ) {
-		this.previousTrack = this.currentTrack;
-		this.currentTrack = new PlaneChanger( this.currentTrack.endTv , action );
-		this.previousTrack.setNextTrack(this.currentTrack);
-		this.addFixed(this.currentTrack);
-		return this.currentTrack;	
+		const pc = new PlaneChanger( this.currentTrack.endTv , action );
+		this.currentTrack.endTv = pc.endTv;
+//		this.previousTrack = this.currentTrack;
+//		this.currentTrack = new PlaneChanger( this.currentTrack.endTv , action );
+//		this.previousTrack.setNextTrack(this.currentTrack);
+//		this.addFixed(this.currentTrack);
+//		return this.currentTrack;	
 	}
 	
 	addPainter( action ) {
@@ -493,6 +495,7 @@ class Track {
 	constructor ( tv ) {
 		this.tv = tv;
 		this.points = [];
+		this.places = [];
 	} 	
 
 	getNextTrack(vehicle) {
@@ -687,6 +690,7 @@ class PlaneChanger extends Track {
 		this.points = [];
 		this.places = [];
 		this.newPlane = jobj["plane"]; 
+		this.color =  lookupColor( lookup( jobj , "color" , defaultTrackColor ));
 		
 		if (!this.toNesw()) {
 			console.log("Can't change planes if dir is not N, S, E or W: "+JSON.stringify(jobj));
