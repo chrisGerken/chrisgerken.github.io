@@ -2,7 +2,7 @@
 	"name":"Faces", 
 	"camera": {
 		"position": {"x":2,"y":2,"z":2},
-		"xxx": {"x":0,"y":0,"z":0}
+		"lookAt": {"x":0,"y":0,"z":0}
 	},
 	"layout":[
 

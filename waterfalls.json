@@ -1,42 +1,82 @@
 { 
 	"name":"Transforms", 
 	"camera": {
-		"position": {"x":0,"y":0,"z":3},
-		"xxx": {"x":0,"y":0,"z":3}
+		"position": {"x":0,"y":-5,"z":4},
+		"lookAt": {"x":0,"y":0,"z":3}
 	},
 	"layout":[
 		{"type":"setting","name":"pointSeparation","value":0.01} ,
-		{"type":"setting","name":"ballSafeDistance","value":10} ,
+		{"type":"setting","name":"ballSafeDistance","value":15} ,
 		{"type":"setting","name":"defaultTrackColor","value":"grey"} ,
 		{"type":"defineColor","name":"purple","r":136,"g":0,"b":136} ,
 		{"type":"defineColor","name":"blue","r":0,"g":0,"b":136} ,
 		{"type":"defineColor","name":"green","r":0,"g":136,"b":0} ,
 		{"type":"defineColor","name":"yellow","r":136,"g":136,"b":0} ,
 		{"type":"defineColor","name":"red","r":136,"g":0,"b":0} ,
-		{"type":"defineColor","name":"grey","r":169,"g":169,"b":169} ,
+		{"type":"defineColor","name":"grey","r":39,"g":39,"b":39} ,
 		{"type":"defineColor","name":"white","r":255,"g":255,"b":255} ,
+		{"type":"defineColor","name":"black","r":0,"g":0,"b":0} ,
 
-		{"type":"light","kind":"directional","position":{"x":0, "y":0, "z":4},"color":"white"} ,
+		{"type":"light","kind":"directional","position":{"x":0, "y":0, "z":4},"color":"white","intensity":4} ,
+		{"type":"light","kind":"directional","position":{"x":3, "y":0, "z":-4},"color":"white","intensity":4} ,
 
-		{"type":"generator","every":15,"max":200,"balls":[{"color":"blue","speed":3}], "tv": {"x":-2.8, "y":1.9, "z":0, "neswAngle":-90, "plane":"XY"  }} ,
+		{"type":"generator","every":7,"max":200,"balls":[{"color":"blue","speed":3},{"color":"red","speed":3},{"color":"yellow","speed":3},{"color":"purple","speed":3},{"color":"green","speed":3}], "tv": {"x":0, "y":-2.15, "z":-1, "neswAngle":90, "plane":"XZ"  }} ,
+		{"type":"straight","length":0.3} ,
+		{"type":"switch","label":"first"} ,
+		{"type":"straight","length":0.4} ,
+		{"type":"sort","label":"dsk01","defaultColor":"grey"} ,
+		{"type":"straight","length":0.71} ,
+		{"type":"sort","label":"dsk02","defaultColor":"grey"} ,
+		{"type":"straight","length":0.71} ,
+		{"type":"sort","label":"dsk03","defaultColor":"grey"} ,
+		{"type":"straight","length":0.71} ,
+		{"type":"sort","label":"dsk04","defaultColor":"grey"} ,
+		{"type":"straight","length":0.71} ,
+		{"type":"sort","label":"dsk05","defaultColor":"grey"} ,
+
+		{"type":"straight","length":0.31,"color":"black"} ,
+		{"type":"left","radius":0.05,"angle":90,"color":"black"} ,
+		{"type":"straight","length":0.85,"color":"black"} ,
+		{"type":"switch","label":"second"} ,
+		{"type":"straight","length":0.35} ,
+
+
+		{"type":"sort","label":"top1","defaultColor":"grey"} ,
 		{"type":"straight","length":0.2} ,
-		{"type":"sprayer","label":"a1"} ,
-
-		{"type":"generator","every":15,"max":200,"balls":[{"color":"red","speed":3}], "tv": {"x":-2.6, "y":1.9, "z":0, "neswAngle":-90, "plane":"XY"  }} ,
+		{"type":"sort","label":"top2","defaultColor":"grey"} ,
 		{"type":"straight","length":0.2} ,
-		{"type":"sprayer","label":"b1"} ,
-
-		{"type":"generator","every":15,"max":200,"balls":[{"color":"yellow","speed":3}], "tv": {"x":-2.4, "y":1.9, "z":0, "neswAngle":-90, "plane":"XY"  }} ,
+		{"type":"sort","label":"top3","defaultColor":"grey"} ,
 		{"type":"straight","length":0.2} ,
-		{"type":"sprayer","label":"c1"} ,
-
-		{"type":"generator","every":15,"max":200,"balls":[{"color":"purple","speed":3}], "tv": {"x":-2.2, "y":1.9, "z":0, "neswAngle":-90, "plane":"XY"  }} ,
+		{"type":"sort","label":"top4","defaultColor":"grey"} ,
 		{"type":"straight","length":0.2} ,
+		{"type":"sort","label":"top5","defaultColor":"grey"} ,
+
+		{"type":"setCurrent","label":"top1"} ,
+		{"type":"left","radius":0.05,"angle":90,"color":"green"} ,
+		{"type":"straight","length":0.1} ,
+		{"type":"sprayer","label":"e1"} ,
+
+		{"type":"setCurrent","label":"top2"} ,
+		{"type":"left","radius":0.05,"angle":90,"color":"purple"} ,
+		{"type":"straight","length":0.1} ,
 		{"type":"sprayer","label":"d1"} ,
 
-		{"type":"generator","every":15,"max":200,"balls":[{"color":"green","speed":3}], "tv": {"x":-2.0, "y":1.9, "z":0, "neswAngle":-90, "plane":"XY"  }} ,
-		{"type":"straight","length":0.2} ,
-		{"type":"sprayer","label":"e1"} ,
+		{"type":"setCurrent","label":"top3"} ,
+		{"type":"left","radius":0.05,"angle":90,"color":"yellow"} ,
+		{"type":"straight","length":0.1} ,
+		{"type":"sprayer","label":"c1"} ,
+
+		{"type":"setCurrent","label":"top4"} ,
+		{"type":"left","radius":0.05,"angle":90,"color":"red"} ,
+		{"type":"straight","length":0.1} ,
+		{"type":"sprayer","label":"b1"} ,
+
+		{"type":"setCurrent","label":"top5"} ,
+		{"type":"left","radius":0.05,"angle":90,"color":"blue"} ,
+		{"type":"straight","length":0.1} ,
+		{"type":"sprayer","label":"a1"} ,
+
+
 		
 		{"type":"log","message":"Writing stream a"} , 
 		{"type":"setCurrent","label":"a1"} , 
@@ -1080,23 +1120,123 @@
 		{"type":"connectTo","label":"e35"} ,
 
 		{"type":"setCurrent","label":"a35"} ,
+		{"type":"straight","length":0.1} ,
+		{"type":"left","radius":0.05,"angle":90} , 
 		{"type":"straight","length":0.2} ,
-		{"type":"disposal"} ,
+		{"type":"switch","label":"db"} ,
+		{"type":"straight","length":0.2} ,
+		{"type":"switch","label":"dc"} ,
+		{"type":"straight","length":0.2} ,
+		{"type":"switch","label":"dd"} ,
+		{"type":"straight","length":0.2} ,
+		{"type":"switch","label":"de"} ,
+		{"type":"straight","length":1.2} ,
+		{"type":"left","radius":0.05,"angle":90} , 
+		{"type":"connectTo","label":"first"} ,
 
 		{"type":"setCurrent","label":"b35"} ,
-		{"type":"straight","length":0.2} ,
-		{"type":"disposal"} ,
+		{"type":"straight","length":0.1} ,
+		{"type":"left","radius":0.05,"angle":90} , 
+		{"type":"connectTo","label":"db"} ,
 
 		{"type":"setCurrent","label":"c35"} ,
-		{"type":"straight","length":0.2} ,
-		{"type":"disposal"} ,
+		{"type":"straight","length":0.1} ,
+		{"type":"left","radius":0.05,"angle":90} , 
+		{"type":"connectTo","label":"dc"} ,
 
 		{"type":"setCurrent","label":"d35"} ,
-		{"type":"straight","length":0.2} ,
-		{"type":"disposal"} ,
+		{"type":"straight","length":0.1} ,
+		{"type":"left","radius":0.05,"angle":90} , 
+		{"type":"connectTo","label":"dd"} ,
 
 		{"type":"setCurrent","label":"e35"} ,
+		{"type":"straight","length":0.1} ,
+		{"type":"left","radius":0.05,"angle":90} , 
+		{"type":"connectTo","label":"de"} ,
+
+
+
+		{"type":"block","label":"spiral-out","layout":[
+			{"type":"plane","plane":"XY"} ,
+			{"type":"right","radius":0.10,"angle":180} ,
+			{"type":"straight","length":0.05} ,
+			{"type":"right","radius":0.15,"angle":180} ,
+			{"type":"straight","length":0.05} ,
+			{"type":"right","radius":0.20,"angle":180} ,
+			{"type":"straight","length":0.05} ,
+			{"type":"right","radius":0.25,"angle":180} ,
+			{"type":"straight","length":0.05} ,
+			{"type":"right","radius":0.30,"angle":180} ,
+			{"type":"straight","length":0.05} ,
+			{"type":"right","radius":0.35,"angle":180} ,
+			{"type":"straight","length":0.05} ,
+			{"type":"right","radius":0.40,"angle":180} ,
+			{"type":"straight","length":0.05} ,
+			{"type":"right","radius":0.45,"angle":180} ,
+			{"type":"straight","length":0.05} ,
+			{"type":"right","radius":0.50,"angle":180} ,
+			{"type":"straight","length":0.05} ,
+			{"type":"right","radius":0.55,"angle":180} ,
+			{"type":"straight","length":0.05} ,
+			{"type":"right","radius":0.60,"angle":180} ,
+			{"type":"straight","length":0.05} ,
+			{"type":"right","radius":0.65,"angle":180} ,
+			{"type":"straight","length":0.05} ,
+			{"type":"right","radius":0.70,"angle":180} ,
+			{"type":"straight","length":0.05} ,
+			{"type":"right","radius":0.75,"angle":180} ,
+			{"type":"straight","length":0.05} ,
+			{"type":"right","radius":0.80,"angle":180} ,
+			{"type":"straight","length":0.05} ,
+			{"type":"right","radius":0.85,"angle":90} ,
+			{"type":"plane","plane":"YZ"} ,
+			{"type":"left","radius":0.05,"angle":90} 
+			]} ,
+
+		{"type":"setCurrent","label":"dsk01"} ,
+		{"type":"right","radius":0.05,"angle":90,"color":"blue"} ,
+		{"type":"run", "label":"spiral-out"} ,
+		{"type":"plane","plane":"XZ"} ,
+		{"type":"straight","length":0.71} ,
+		{"type":"switch","label":"ad2"} ,
+		{"type":"straight","length":0.71} ,
+		{"type":"switch","label":"ad3"} ,
+		{"type":"straight","length":0.71} ,
+		{"type":"switch","label":"ad4"} ,
+		{"type":"straight","length":0.71} ,
+		{"type":"switch","label":"ad5"} ,
+		
 		{"type":"straight","length":0.2} ,
-		{"type":"disposal"} 
+		{"type":"left","radius":0.05,"angle":90} ,
+		{"type":"connectTo","label":"second"} ,
+
+
+
+
+		{"type":"setCurrent","label":"dsk02"} ,
+		{"type":"right","radius":0.05,"angle":90,"color":"red"} ,
+		{"type":"run", "label":"spiral-out"} ,
+		{"type":"plane","plane":"XZ"} ,
+		{"type":"connectTo","label":"ad2"} ,
+
+		{"type":"setCurrent","label":"dsk03"} ,
+		{"type":"right","radius":0.05,"angle":90,"color":"yellow"} ,
+		{"type":"run", "label":"spiral-out"} ,
+		{"type":"plane","plane":"XZ"} ,
+		{"type":"connectTo","label":"ad3"} ,
+
+		{"type":"setCurrent","label":"dsk04"} ,
+		{"type":"right","radius":0.05,"angle":90,"color":"purple"} ,
+		{"type":"run", "label":"spiral-out"} ,
+		{"type":"plane","plane":"XZ"} ,
+		{"type":"connectTo","label":"ad4"} ,
+
+		{"type":"setCurrent","label":"dsk05"} ,
+		{"type":"right","radius":0.05,"angle":90,"color":"green"} ,
+		{"type":"run", "label":"spiral-out"} ,
+		{"type":"plane","plane":"XZ"} ,
+		{"type":"connectTo","label":"ad5"} 
+		
+
 		]
 	}
