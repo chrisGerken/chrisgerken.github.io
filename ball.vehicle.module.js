@@ -138,6 +138,8 @@ class SimpleTrackLayout {
 		this.config = config;
 		this.fluid = [ ];
 		this.fixed = [ ];
+		this.nextStep = 0;
+		this.msPerStep = 5;
 		
 		if (!config.hasOwnProperty("camera")) {
 			config.camera = { };	
@@ -333,7 +335,14 @@ class SimpleTrackLayout {
 		}
 	}
 	
-	move() {
+	move( timestamp ) {
+
+		if (timestamp < this.nextStep) {
+			return;
+		}
+
+		this.nextStep = timestamp + this.msPerStep;
+						
 		let newFluid = [];
 		for (let v of this.fluid) {
   			v.move();
