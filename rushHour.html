@@ -47,9 +47,9 @@
 //			document.body.appendChild( layout.getDomElement() );
 			layout.layout();
 						
-			function animate() {
+			function animate( timestamp ) {
 				requestAnimationFrame( animate );
-				layout.move();
+				layout.move( timestamp );
 			}
 			
 			animate();
