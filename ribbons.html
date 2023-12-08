@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 	<head>
-		<title>three.js webgl - First Interactive</title>
+		<title>three.js webgl - Ribbons</title>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 		<link type="text/css" rel="stylesheet" href="mt.css">
@@ -53,7 +53,7 @@
   <fieldset>
     <legend>&nbsp;Goals&nbsp;</legend>
 <BR>
-Distribute the marbles evenly across each section of track, then clear the layout of all marbles.
+Stop the generator or dispose of marbles when there are too many of the same color.
 <BR>
 
 <BR>
@@ -78,7 +78,7 @@ Distribute the marbles evenly across each section of track, then clear the layou
     <legend>&nbsp;Generators&nbsp;</legend>
 
 <BR>
-<input type="checkbox" onclick="toggleGenerator('gen01')" id="gen01">
+<input type="checkbox" onclick="toggleGenerator('gen_red')" id="gen_red">
 	<div style="display:inline-block; 
         background: #880000; 
         width:15px; 
@@ -88,48 +88,75 @@ Red Marbles
 <BR>
 
 <BR>
+<input type="checkbox" onclick="toggleGenerator('gen_yellow')" id="gen_yellow">
+	<div style="display:inline-block; 
+        background: #888800; 
+        width:15px; 
+        height:15px; 
+        border-radius:125px"></div>
+Yellow Marbles
+<BR>
+
+<BR>
+<input type="checkbox" onclick="toggleGenerator('gen_purple')" id="gen_purple">
+	<div style="display:inline-block; 
+        background: #880088; 
+        width:15px; 
+        height:15px; 
+        border-radius:125px"></div>
+Purple Marbles
+<BR>
+
+<BR>
+<input type="checkbox" onclick="toggleGenerator('gen_cyan')" id="gen_cyan">
+	<div style="display:inline-block; 
+        background: #008888; 
+        width:15px; 
+        height:15px; 
+        border-radius:125px"></div>
+Cyan Marbles
+<BR>
+
+<BR>
     
   </fieldset>
   <fieldset>
     <legend>&nbsp;Switches&nbsp;</legend>
 
-<BR>Switch 01<BR>
+<BR>Red Switch<BR>
  
-    <input type="radio" name="man01" value="0" onclick="toggleSwitch('man01', '0')" id="man01_0"/>
+    <input type="radio" name="disp_red" value="0" onclick="toggleSwitch('disp_red', '0')" id="disp_red_0"/>
     <label>Straight</label><br />
 
-    <input type="radio" name="man01" value="1" onclick="toggleSwitch('man01', '1')" id="man01_1"/>
-    <label>Left</label><br />
-
-    <input type="radio" name="man01" value="2" onclick="toggleSwitch('man01', '2')" id="man01_2"/>
-    <label>Right</label><br />
+    <input type="radio" name="disp_red" value="1" onclick="toggleSwitch('disp_red', '1')" id="disp_red_1"/>
+    <label>Dispose</label><br />
 
 
-<BR>Switch 02<BR>
+<BR>Yellow Switch<BR>
  
-    <input type="radio" name="man02" value="0" onclick="toggleSwitch('man02', '0')" id="man02_0"/>
+    <input type="radio" name="disp_yellow" value="0" onclick="toggleSwitch('disp_yellow', '0')" id="disp_yellow_0"/>
     <label>Straight</label><br />
 
-    <input type="radio" name="man02" value="1" onclick="toggleSwitch('man02', '1')" id="man02_1"/>
-    <label>Left</label><br />
+    <input type="radio" name="disp_yellow" value="1" onclick="toggleSwitch('disp_yellow', '1')" id="disp_yellow_1"/>
+    <label>Dispose</label><br />
 
 
-<BR>Switch 03<BR>
+<BR>Purple Switch<BR>
  
-    <input type="radio" name="man03" value="0" onclick="toggleSwitch('man03', '0')" id="man03_0"/>
+    <input type="radio" name="disp_purple" value="0" onclick="toggleSwitch('disp_purple', '0')" id="disp_purple_0"/>
     <label>Straight</label><br />
 
-    <input type="radio" name="man03" value="1" onclick="toggleSwitch('man03', '1')" id="man03_1"/>
-    <label>Right</label><br />
+    <input type="radio" name="disp_purple" value="1" onclick="toggleSwitch('disp_purple', '1')" id="disp_purple_1"/>
+    <label>Dispose</label><br />
 
 
-<BR>Switch 04<BR>
+<BR>Cyan Switch<BR>
  
-    <input type="radio" name="man04" value="0" onclick="toggleSwitch('man04', '0')" id="man04_0"/>
+    <input type="radio" name="disp_cyan" value="0" onclick="toggleSwitch('disp_cyan', '0')" id="disp_cyan_0"/>
     <label>Straight</label><br />
 
-    <input type="radio" name="man04" value="1" onclick="toggleSwitch('man04', '1')" id="man04_1"/>
-    <label>Right</label><br />
+    <input type="radio" name="disp_cyan" value="1" onclick="toggleSwitch('disp_cyan', '1')" id="disp_cyan_1"/>
+    <label>Dispose</label><br />
 
 
 <BR>
@@ -167,7 +194,7 @@ Red Marbles
 			    return Httpreq.responseText;          
 			}
 
-			let jsonLayout = JSON.parse(fetchLayout('test.json'));
+			let jsonLayout = JSON.parse(fetchLayout('ribbons.json'));
 	            
 	        const elem = document.getElementById('screen');
 	            
@@ -180,21 +207,26 @@ Red Marbles
 	        document.getElementById('speed_fast').checked = layout.msPerStep == 5;
 	        document.getElementById('speed_slow').checked = layout.msPerStep == 100;
 
-	        document.getElementById('man01_0').checked = switchSet("man01",0);
-	        document.getElementById('man01_1').checked = switchSet("man01",1);
-	        document.getElementById('man01_2').checked = switchSet("man01",2);
+	        document.getElementById('disp_red_0').checked = switchSet("disp_red",0);
+	        document.getElementById('disp_red_1').checked = switchSet("disp_red",1);
 
-	        document.getElementById('man02_0').checked = switchSet("man02",0);
-	        document.getElementById('man02_1').checked = switchSet("man02",1);
+	        document.getElementById('disp_yellow_0').checked = switchSet("disp_yellow",0);
+	        document.getElementById('disp_yellow_1').checked = switchSet("disp_yellow",1);
 
-	        document.getElementById('man03_0').checked = switchSet("man03",0);
-	        document.getElementById('man03_1').checked = switchSet("man03",1);
+	        document.getElementById('disp_purple_0').checked = switchSet("disp_purple",0);
+	        document.getElementById('disp_purple_1').checked = switchSet("disp_purple",1);
 
-	        document.getElementById('man04_0').checked = switchSet("man04",0);
-	        document.getElementById('man04_1').checked = switchSet("man04",1);
+	        document.getElementById('disp_cyan_0').checked = switchSet("disp_cyan",0);
+	        document.getElementById('disp_cyan_1').checked = switchSet("disp_cyan",1);
 
 
-	        document.getElementById('gen01').checked = generatorEnabled("gen01");
+	        document.getElementById('gen_red').checked = generatorEnabled("gen_red");
+
+	        document.getElementById('gen_yellow').checked = generatorEnabled("gen_yellow");
+
+	        document.getElementById('gen_purple').checked = generatorEnabled("gen_purple");
+
+	        document.getElementById('gen_cyan').checked = generatorEnabled("gen_cyan");
 
 						
 			function animate( timestamp ) {
