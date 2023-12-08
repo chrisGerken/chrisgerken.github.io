@@ -6,6 +6,8 @@
 
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { FontLoader } from 'three/addons/loaders/FontLoader.js';
+import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
 
 const loggingConstructs = false;
 const loggingPlacement = true;
@@ -14,13 +16,19 @@ const PLANE_XY = "XY";
 const PLANE_XZ = "XZ";
 const PLANE_YZ = "YZ";
 
+let labelFont;
+let fontLoaded = false;
+let labels = [];
+
 let   pointSeparation = 0.05;
 let   ballSafeDistance = 3;
 let   defaultTrackColor = "grey";
 let   layout;
 let   switches = { };
+let   gens = { };
 let   definedColors = {};
 let   blocks = { };
+let   vars = { };
 
 function cvcos( degrees ) {
 	return Math.cos(degrees / 180 * 3.14159);
@@ -97,10 +105,17 @@ function movePlaces( vehicle, point, count ) {
 
 function lookup( jobj , field , defaultValue ) {
 	
+	let result = defaultValue;
 	if (jobj.hasOwnProperty(field)) {
-		return jobj[field];
+		result = jobj[field];
 	}	
-	return defaultValue;
+	let buf = "" + result;
+	if (buf.charAt(0) == '$') {
+		result = buf;
+		const property = result.substring(1);
+		result = vars[property];
+	}
+	return result;
 	
 }
 
@@ -114,6 +129,52 @@ function lookupColor(name) {
 		return definedColors[name];
 	}
 	return 15*16*16*16*16 + 15*16*16 + 15;
+}
+
+function onPointerUp( event ) {
+
+	layout.onPointerUp(event);
+
+}
+
+class TextLabel {
+
+	constructor ( jobj ) {
+		this.text  =  jobj["text"];
+		this.color =  jobj["color"];
+		this.x     =  jobj["x"];
+		this.y     =  jobj["y"];
+		this.z     =  jobj["z"];
+		this.active = true;
+	}
+
+	getDisplayableObject( ) {
+
+		const aLabel = new TextGeometry( this.text, 
+											{ font: labelFont, 
+											  size: 0.5, 
+											  height: 0.2,
+											  curveSegments: 12,
+											  } );
+
+		const material = new THREE.MeshPhongMaterial(  { color: this.color }  );
+
+		this.textmesh = new THREE.Mesh( aLabel, material );
+		this.textmesh.scale.set( 0.1, 0.1, 0.1);
+		this.textmesh.position.x = this.x;
+		this.textmesh.position.y = this.y;
+		this.textmesh.position.z = this.z;
+
+		return [ this.textmesh ];
+
+	}
+
+	move() {
+//		this.textmesh.rotation.x += 0.01;
+//		this.textmesh.rotation.y += 0.01;
+//		this.textmesh.rotation.z += 0.01;
+	}
+
 }
 
 class TrackVector {
@@ -140,6 +201,9 @@ class SimpleTrackLayout {
 		this.fixed = [ ];
 		this.nextStep = 0;
 		this.msPerStep = 5;
+		this.window = window;
+		this.rcPointer = null;
+		this.running = true;
 		
 		if (!config.hasOwnProperty("camera")) {
 			config.camera = { };	
@@ -177,8 +241,26 @@ class SimpleTrackLayout {
 		this.camera.position.set( pos.x , pos.y , pos.z );
 //		this.camera.target = trg;
 		this.controls.update();	
+
+		this.raycaster = new THREE.Raycaster();
+
+//		window.addEventListener( 'pointermove', this.onPointerMove );
+//		window.addEventListener( 'pointerup', onPointerUp );
 		
 		layout = this;
+		
+		this.loadFont();
+
+	}
+
+	onPointerUp( event ) {
+
+		// calculate pointer position in normalized device coordinates
+		// (-1 to +1) for both components
+
+		this.rcPointer = new THREE.Vector2();
+		this.rcPointer.x = ( event.clientX / this.window.innerWidth ) * 2 - 1;
+		this.rcPointer.y = - ( event.clientY / this.window.innerHeight ) * 2 + 1;
 
 	}
 	
@@ -187,6 +269,21 @@ class SimpleTrackLayout {
 		return this.renderer.domElement ;
 		
 	}
+
+    loadFont() {
+
+    	const loader = new FontLoader();
+		loader.load( 'fonts/helvetiker_regular.typeface.json', 
+						function ( font ) { 
+								labelFont = font; 
+								fontLoaded = true;
+								layout.placeLabels();
+								} ,
+						function ( xhr ) {  } ,
+						function ( err ) { console.log("Font load error: "+err); } 
+						 );
+
+	}	
 	
 	addFixed(f) {
 		this.fixed.push( f );
@@ -262,6 +359,14 @@ class SimpleTrackLayout {
 		return this.currentTrack;	
 	}
 	
+	addManualSwitch( action ) {
+		this.previousTrack = this.currentTrack;
+		this.currentTrack = new ManualSwitchTrack( this.currentTrack.endTv , action );
+		this.previousTrack.setNextTrack(this.currentTrack);
+		this.addFluid(this.currentTrack);
+		return this.currentTrack;	
+	}
+	
 	addSortSwitch( label ) {
 		this.previousTrack = this.currentTrack;
 		this.currentTrack = new SortSwitch( this.currentTrack.endTv , label );
@@ -308,6 +413,12 @@ class SimpleTrackLayout {
 		return this.currentTrack;	
 	}
 	
+	addVars( jobj ) {
+		for (const property in jobj.values) {
+			vars[property] = jobj.values[property];
+		}
+	}
+	
 	setCurrentTrack( label ) {
 		let track = switches[label];
 		this.currentTrack = track;
@@ -341,17 +452,21 @@ class SimpleTrackLayout {
 			return;
 		}
 
-		this.nextStep = timestamp + this.msPerStep;
+		if (this.simulationRunning()) {
+
+			this.nextStep = timestamp + this.msPerStep;
 						
-		let newFluid = [];
-		for (let v of this.fluid) {
-  			v.move();
-  			if (v.active) {
-				newFluid.push(v);	  
+			let newFluid = [];
+			for (let v of this.fluid) {
+  				v.move();
+ 	 			if (v.active) {
+					newFluid.push(v);	  
+				}
 			}
-		}
 		
-		this.fluid = newFluid;
+			this.fluid = newFluid;
+			
+		}
 
 		this.renderer.render( this.scene, this.camera );
 
@@ -369,6 +484,30 @@ class SimpleTrackLayout {
     		this.performAction(block[i]);
 		}
 		
+	}
+	
+	simulationRunning() {
+		return this.running;
+	}
+	
+	toggleSimulation() {
+		this.running = !this.running;
+	}
+	
+	toggleGenerator( id ) {
+		gens[id].toggle();
+	}
+	
+	generatorEnabled( id ) {
+		return gens[id].enabled;
+	}
+	
+	toggleSwitch( id , choice ) {
+		switches[id].switch(choice);
+	}
+	
+	switchSetting( id , choice ) {
+		return switches[id].outIndex == choice;	
 	}
 	
 	performAction( action ) {
@@ -433,6 +572,11 @@ class SimpleTrackLayout {
 			return;			
 		}
 		
+		if (type === "manualSwitch") {
+			this.addManualSwitch( action );
+			return;			
+		}
+		
 		if (type === "sprayer") {
 			this.addSpraySwitch( action );
 			return;			
@@ -459,12 +603,17 @@ class SimpleTrackLayout {
 		}
 		
 		if (type === "setCurrent") {
-			this.setCurrentTrack( action["label"] );
+			this.setCurrentTrack( lookup(action, "label", "missing_label") );
 			return;			
 		}
 		
 		if (type === "light") {
 			this.addLight( action );
+			return;			
+		}
+		
+		if (type === "vars") {
+			this.addVars( action );
 			return;			
 		}
 		
@@ -497,6 +646,21 @@ class SimpleTrackLayout {
 	getFluid() {
 		return this.fluid;
 	}
+	
+	placeText( text , color, x , y , z) {
+
+		labels.push ( { text: text, color: color, x: x, y: y, z: z } );		
+		
+	}
+	
+	placeLabels( ) {
+		
+		for (let l of labels) {
+			this.addFluid( new TextLabel(l) );
+		}
+		
+	}
+	
 	
 }
 
@@ -740,13 +904,15 @@ class PainterTrack extends Track {
 //		return [ this.mesh ];
 		
 		
-		var geo = new THREE.WireframeGeometry( new THREE.SphereGeometry( 0.07, 3, 3 ) ); // or WireframeGeometry( geometry ) EdgesGeometry
+		var geo = new THREE.WireframeGeometry( new THREE.SphereGeometry( 0.01, 3, 3 ) ); // or WireframeGeometry( geometry ) EdgesGeometry
 		var mat = new THREE.LineBasicMaterial( { color: this.color, linewidth: 2 } );
 		this.wireframe = new THREE.LineSegments( geo, mat );
 		this.wireframe.position.set(this.tv.x,this.tv.y,this.tv.z);
 
 		this.logPlacement(this.type+": on "+this.tv.asString());
 		
+		this.wireframe.userData = { "mtKind": this.type };
+
 		return [ this.wireframe ];
 
 	}
@@ -792,6 +958,8 @@ class StopTrack extends Track {
 		this.mesh.position.set(this.tv.x,this.tv.y,this.tv.z);
 		
 		this.logPlacement(this.type+": on "+this.tv.asString());
+		
+		this.mesh.userData = { "mtKind": this.type };
 		
 		return [ this.mesh ];
 
@@ -855,6 +1023,8 @@ class SwitchTrack extends Track {
 		
 		this.logPlacement(this.type+": on "+this.tv.asString());
 		
+		soMesh.userData = { "mtKind": this.type };
+		
 		return [ soMesh ];
 
 	}
@@ -867,6 +1037,70 @@ class SwitchTrack extends Track {
 				this.outIndex = 0;
 			}
 		}
+	}
+	
+	getNextTrack(vehicle) {
+		return this.nexts[this.outIndex];	
+	}
+	
+	setNextTrack( track ) {
+		this.nexts.push( track );
+		track.setPrevTrack(this);
+	}
+	
+	getPrevTrack() {
+		return this.prevs[this.inIndex];	
+	}
+	
+	setPrevTrack( track ) {
+		this.prevs.push( track );
+	}
+	
+	isPrevTrack( track ) {
+		return true;
+	}
+
+}
+
+class ManualSwitchTrack extends Track {
+	
+	constructor ( tv , jobj ) {
+		super (tv);
+		this.label = lookup(jobj, "label", "missing_label");
+		this.desc = lookup(jobj, "desc", "missing_desc");
+		this.type = "manualSwitch";
+		this.labelOffset = lookup(jobj, "labelOffset", {"x":0.1,"y":0.1,"z":0.1} );
+		this.logConstruct(JSON.stringify(this));
+		this.endTv = tv;
+		this.nexts = [];
+		this.prevs = [];
+		this.places = [];
+		this.outIndex = 0;
+		this.active = true;
+		switches[this.label] = this;
+		
+		layout.placeText(this.desc, 0xffffff, tv.x+this.labelOffset.x,tv.y+this.labelOffset.y,tv.z+this.labelOffset.z);
+	}
+
+	getDisplayableObject( ) {
+
+		const soMesh = new THREE.Mesh( new THREE.SphereGeometry( 0.02, 3, 3 ), new THREE.MeshBasicMaterial( { color: 0x888888 } ) ); 
+		soMesh.position.set(this.tv.x,this.tv.y,this.tv.z);
+		
+		this.logPlacement(this.type+": on "+this.tv.asString());
+
+		soMesh.userData = { "mtClickable": this.label, "mtKind": this.type };
+				
+		return [ soMesh ];
+
+	}
+
+ 	move() {
+
+	}
+
+ 	switch( choice ) {
+		this.outIndex = Number(choice);
 	}
 	
 	getNextTrack(vehicle) {
@@ -1016,6 +1250,8 @@ class StraightTrack extends Track  {
 		
 		this.logPlacement(this.type+": from "+this.tv.asString()+" to "+this.endTv.asString());
 		
+		line.userData = { "mtKind": this.type };
+		
 		return [ line ];
 	}
 
@@ -1152,6 +1388,7 @@ class LeftCurveTrack extends CurveTrack {
 
 	constructor ( tv, jobj ) {
 		super(tv, jobj);
+		this.type = "left";
 	}
 
 	calculateSpecifics() {
@@ -1175,7 +1412,10 @@ class LeftCurveTrack extends CurveTrack {
 		
 		this.logPlacement(this.type+": from "+this.tv.asString()+" to "+this.endTv.asString());
 		
-		return [ new THREE.Line( geometry, material ) ];
+		let cline = new THREE.Line( geometry, material );
+		cline.userData = { "mtKind": this.type };
+		
+		return [ cline ];
 
 	}
 		
@@ -1185,6 +1425,7 @@ class RightCurveTrack extends CurveTrack {
 
 	constructor ( tv, jobj ) {
 		super(tv, jobj);
+		this.type = "left";
 	}
 
 	calculateSpecifics() {
@@ -1208,7 +1449,10 @@ class RightCurveTrack extends CurveTrack {
 		
 		this.logPlacement(this.type+": from "+this.tv.asString()+" to "+this.endTv.asString());
 		
-		return [ new THREE.Line( geometry, material ) ];
+		let cline = new THREE.Line( geometry, material );
+		cline.userData = { "mtKind": this.type };
+		
+		return [ cline ];
 
 	}
 	
@@ -1221,6 +1465,8 @@ class RegularGenerator extends Track {
 		super(tv);
 		this.every 	= lookup(jobj, "every", 10);
 		this.max 	= lookup(jobj, "max" , -1);
+		this.label  = jobj["label"];
+		this.desc   = jobj["desc"];
 		this.balls = [];
 		let jarr = jobj["balls"];
 		for( let i = 0; i < jarr.length; i++) {
@@ -1232,6 +1478,10 @@ class RegularGenerator extends Track {
 		this.colorsIndex = 0;
 		this.endTv = tv;
 		this.active = true;
+		this.enabled = true;
+		gens[this.label] = this;
+		
+		layout.placeText(this.desc, 0xdddddd, tv.x+0.1,tv.y+0.1,tv.z+0.1);
 	}
 
 	getDisplayableObject( ) {
@@ -1246,6 +1496,8 @@ class RegularGenerator extends Track {
 		
 		this.logPlacement(this.type+": on "+this.tv.asString());
 		
+		this.ballMesh.userData = { "mtKind": this.type };
+		
 		return [ this.ballMesh ];
 
 	}
@@ -1256,7 +1508,7 @@ class RegularGenerator extends Track {
 			this.index = 0;
 			this.created ++;
 			if ((this.max == -1) | (this.max >= this.created)) {
-				if (this.nextTrack.isOccupied(0)) {
+				if (this.nextTrack.isOccupied(0) | !this.enabled) {
 					this.created--;
 					return;
 				}
@@ -1271,6 +1523,9 @@ class RegularGenerator extends Track {
 		}
 	}
 
+	toggle() {
+		this.enabled = !this.enabled;
+	}
 }
 
 class Disposal extends Track {
@@ -1362,6 +1617,9 @@ class BallVehicle {
 
 		this.ballMesh = new THREE.Mesh( new THREE.SphereGeometry( 0.05, 15, 15 ), new THREE.MeshPhongMaterial( { color: this.color } ) ); 
 		this.reposition();
+		
+		this.ballMesh.userData = { "mtKind": this.type };
+
 		return [ this.ballMesh ];
 
 	}

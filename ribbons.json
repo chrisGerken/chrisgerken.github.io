@@ -1,0 +1,73 @@
+{ 
+	"name":"Ribbons", 
+	"camera": {
+		"position": {"x":0,"y":0,"z":5},
+		"lookAt": 	{"x":0,"y":0,"z":0}
+	},
+	"layout":[
+
+
+		{"type":"setting","name":"pointSeparation","value":0.01} ,
+		{"type":"setting","name":"ballSafeDistance","value":10} ,
+		{"type":"setting","name":"defaultTrackColor","value":"darkgrey"} ,
+		{"type":"defineColor","name":"white","r":255,"g":255,"b":255} ,
+		{"type":"defineColor","name":"red","r":136,"g":0,"b":0} ,
+		{"type":"defineColor","name":"blue","r":0,"g":0,"b":136} ,
+		{"type":"defineColor","name":"green","r":0,"g":136,"b":0} ,
+		{"type":"defineColor","name":"yellow","r":136,"g":136,"b":0} ,
+		{"type":"defineColor","name":"purple","r":136,"g":0,"b":136} ,
+		{"type":"defineColor","name":"cyan","r":0,"g":136,"b":136} ,
+		{"type":"defineColor","name":"darkgrey","r":100,"g":100,"b":100} ,
+		{"type":"defineColor","name":"grey","r":169,"g":169,"b":169} ,
+
+		{"type":"light","kind":"directional","position":{"x":0, "y":0, "z":4},"color":"white","intensity":5} ,
+
+
+		{"type":"block","label":"thread","layout":[
+			{"type":"straight","length":0.2} ,
+			{"type":"right","radius":0.05,"angle":90} ,
+			{"type":"switch","label":"sw"} ,
+			{"type":"straight","length":4} ,
+			{"type":"right","radius":0.05,"angle":90} ,
+			{"type":"straight","length":2.2} ,
+			{"type":"left","radius":0.25,"angle":180} ,
+			{"type":"straight","length":4.0} ,
+			{"type":"right","radius":0.05,"angle":90} ,
+			{"type":"left","radius":0.25,"angle":180} ,
+			{"type":"straight","length":2.3} ,
+			{"type":"right","radius":0.05,"angle":90} ,
+			{"type":"straight","length":2.2} ,
+			{"type":"left","radius":0.3,"angle":180} ,
+			{"type":"straight","length":2.5} ,
+			{"type":"left","radius":0.05,"angle":90} ,
+			{"type":"right","radius":0.25,"angle":180} ,
+			{"type":"straight","length":1.7} ,
+			{"type":"manualSwitch","label":"$switch","desc":"$desc","labelOffset":{"x":0.05,"y":0.1,"z":0.1}} ,
+			{"type":"left","radius":0.05,"angle":90} ,
+			{"type":"straight","length":1.4} ,
+			{"type":"left","radius":0.05,"angle":90} ,
+			{"type":"connectTo","label":"sw"} ,
+			{"type":"setCurrent","label":"$switch"} ,
+			{"type":"right","radius":0.05,"angle":90} ,
+			{"type":"straight","length":1.0} ,
+			{"type":"disposal"} 
+			]} ,
+
+		{"type":"vars", "values": {"switch":"disp_red","desc":"Red Switch"} } ,
+		{"type":"generator","every":35,"balls":[{"color":"red","speed":3}], "tv": {"x":-2, "y":2.0, "z":0.0, "neswAngle":0, "plane":"XY"  },"label":"gen_red","desc":"Red Marbles"} ,
+		{"type":"run", "label":"thread"} ,
+
+		{"type":"vars", "values": {"switch":"disp_yellow","desc":"Yellow Switch"} } ,
+		{"type":"generator","every":40,"balls":[{"color":"yellow","speed":3}], "tv": {"x":-2, "y":2.0, "z":0.5, "neswAngle":0, "plane":"XY"  },"label":"gen_yellow","desc":"Yellow Marbles"} ,
+		{"type":"run", "label":"thread"} ,
+
+		{"type":"vars", "values": {"switch":"disp_purple","desc":"Purple Switch"} } ,
+		{"type":"generator","every":45,"balls":[{"color":"purple","speed":3}], "tv": {"x":-2, "y":2.0, "z":1.0, "neswAngle":0, "plane":"XY"  },"label":"gen_purple","desc":"Purple Marbles"} ,
+		{"type":"run", "label":"thread"} ,
+
+		{"type":"vars", "values": {"switch":"disp_cyan","desc":"Cyan Switch"} } ,
+		{"type":"generator","every":50,"balls":[{"color":"cyan","speed":3}], "tv": {"x":-2, "y":2.0, "z":1.5, "neswAngle":0, "plane":"XY"  },"label":"gen_cyan","desc":"Cyan Marbles"} ,
+		{"type":"run", "label":"thread"} 
+
+		]
+	}

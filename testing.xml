@@ -1,0 +1,75 @@
+<root>
+
+    <site  name="chrisgerken.github.io">
+
+        <page  name="ribbons"  title="Ribbons">
+
+
+            <goal>Stop the generator or dispose of marbles when there are too many of the same color.</goal>
+
+           <generator  label="Red Marbles"    color="880000"  id="gen_red" />
+            <generator  label="Yellow Marbles" color="888800"  id="gen_yellow" />
+            <generator  label="Purple Marbles" color="880088"  id="gen_purple" />
+            <generator  label="Cyan Marbles"   color="008888"  id="gen_cyan" />
+
+            <!--  label :  -->
+            <!--  id :  -->
+            <!--  desc :  -->
+            <switch  label="Red Switch"  id="disp_red"  >
+                <track  label="Straight" index="0"  id="0" />
+                <track  label="Dispose"  index="1"  id="1" />
+            </switch>
+            <switch  label="Yellow Switch"  id="disp_yellow"  >
+                <track  label="Straight" index="0"  id="0" />
+                <track  label="Dispose"  index="1"  id="1" />
+            </switch>
+            <switch  label="Purple Switch"  id="disp_purple"  >
+                <track  label="Straight" index="0"  id="0" />
+                <track  label="Dispose"  index="1"  id="1" />
+            </switch>
+            <switch  label="Cyan Switch"  id="disp_cyan"  >
+                <track  label="Straight" index="0"  id="0" />
+                <track  label="Dispose"  index="1"  id="1" />
+            </switch>
+
+
+        </page>
+
+
+
+        <page  name="test"  title="First Interactive">
+
+
+            <goal>Fill every section of track with marbles, then clear the layout of all marbles.</goal>
+
+            <generator  label="Red Marbles"    color="880000"  id="gen01" />
+
+            <!--  label :  -->
+            <!--  id :  -->
+            <!--  desc :  -->
+            <switch  label="Switch 01"  id="man01"  >
+                <track  label="Straight" index="0"  id="0" />
+                <track  label="Left"  index="1"  id="1" />
+                <track  label="Right"  index="2"  id="2" />
+            </switch>
+            <switch  label="Switch 02"  id="man02"  >
+                <track  label="Straight" index="0"  id="0" />
+                <track  label="Left"  index="1"  id="1" />
+            </switch>
+            <switch  label="Switch 03"  id="man03"  >
+                <track  label="Straight" index="0"  id="0" />
+                <track  label="Right"  index="1"  id="1" />
+            </switch>
+            <switch  label="Switch 04"  id="man04"  >
+                <track  label="Straight" index="0"  id="0" />
+                <track  label="Right"  index="1"  id="1" />
+            </switch>
+
+
+        </page>
+
+
+    </site>
+
+
+</root>
