@@ -10,7 +10,7 @@ import { FontLoader } from 'three/addons/loaders/FontLoader.js';
 import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
 
 const loggingConstructs = false;
-const loggingPlacement = true;
+const loggingPlacement = false;
 
 const PLANE_XY = "XY";
 const PLANE_XZ = "XZ";
@@ -405,6 +405,13 @@ class SimpleTrackLayout {
 		this.addFluid( this.currentTrack );
 	}
 	
+	addPlaceHolder( jobj ) {
+		let jobjtv = jobj["tv"];
+		let tv = new TrackVector(jobjtv["x"], jobjtv["y"], jobjtv["z"], jobjtv["neswAngle"], jobjtv["plane"]);
+		this.currentTrack = new SpraySwitch( tv , jobj );
+		this.addFluid( this.currentTrack );
+	}
+	
 	addDisposal( jobj ) {
 		this.previousTrack = this.currentTrack;
 		this.currentTrack = new Disposal(this.currentTrack.endTv, jobj);
@@ -569,6 +576,11 @@ class SimpleTrackLayout {
 		
 		if (type === "switch") {
 			this.addSwitch( action );
+			return;			
+		}
+		
+		if (type === "placeHolder") {
+			this.addPlaceHolder( action );
 			return;			
 		}
 		
@@ -1014,6 +1026,10 @@ class SwitchTrack extends Track {
 		this.counter = 0;
 		this.active = true;
 		switches[this.label] = this;
+
+		this.desc   = lookup(jobj, "desc", this.label);
+		this.labelOffset = lookup(jobj, "labelOffset", {"x":0.1,"y":0.1,"z":0.1} );
+//		layout.placeText(this.desc, 0xffffff, tv.x+this.labelOffset.x,tv.y+this.labelOffset.y,tv.z+this.labelOffset.z);
 	}
 
 	getDisplayableObject( ) {
@@ -1067,7 +1083,7 @@ class ManualSwitchTrack extends Track {
 	constructor ( tv , jobj ) {
 		super (tv);
 		this.label = lookup(jobj, "label", "missing_label");
-		this.desc = lookup(jobj, "desc", "missing_desc");
+		this.desc   = lookup(jobj, "desc", this.label);
 		this.type = "manualSwitch";
 		this.labelOffset = lookup(jobj, "labelOffset", {"x":0.1,"y":0.1,"z":0.1} );
 		this.logConstruct(JSON.stringify(this));
@@ -1267,7 +1283,7 @@ class CurveTrack extends Track {
 		this.calculateSpecifics();
 		this.endTv = this.calculateEndTv(); 
 		this.jobj = jobj;
-		console.log(JSON.stringify(this));
+		this.logConstruct(JSON.stringify(this));
 	}
 
 	calculateSpecifics() {
@@ -1466,7 +1482,7 @@ class RegularGenerator extends Track {
 		this.every 	= lookup(jobj, "every", 10);
 		this.max 	= lookup(jobj, "max" , -1);
 		this.label  = jobj["label"];
-		this.desc   = jobj["desc"];
+		this.desc   = lookup(jobj, "desc", this.label);
 		this.balls = [];
 		let jarr = jobj["balls"];
 		for( let i = 0; i < jarr.length; i++) {
@@ -1481,7 +1497,9 @@ class RegularGenerator extends Track {
 		this.enabled = true;
 		gens[this.label] = this;
 		
-		layout.placeText(this.desc, 0xdddddd, tv.x+0.1,tv.y+0.1,tv.z+0.1);
+		if (jobj.hasOwnProperty("label")) {
+			layout.placeText(this.desc, 0xdddddd, tv.x+0.1,tv.y+0.1,tv.z+0.1);
+		}
 	}
 
 	getDisplayableObject( ) {
