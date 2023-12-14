@@ -1681,7 +1681,7 @@
 
 
 
-		{"type":"generator","every":10,"max":300,"balls":[{"color":"cyan","speed":3}], "tv": {"x":0, "y":-0.2, "z":0, "neswAngle":90, "plane":"YZ"  }} ,
+		{"type":"generator","every":10,"max":300,"balls":[{"color":"cyan","speed":3}], "tv": {"x":0, "y":-0.2, "z":0, "neswAngle":90, "plane":"YZ"  },"label":"gen_cyan","desc":"Cyan Marbles"} ,
 		{"type":"run", "label":"lay01"} 
 
 		]
