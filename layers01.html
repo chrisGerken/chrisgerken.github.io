@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>three.js webgl - Layers 01</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<link type="text/css" rel="stylesheet" href="mt.css">
+		<style>
+			b {
+				color: lightgreen;
+			}
+		</style>
+		<script>
+           
+			let layout;
+
+	        function toggleSimulation(  ) {
+				layout.toggleSimulation();
+			}
+			
+			function simulationRunning(  ) {
+				return layout.simulationRunning();
+			}
+
+	        function toggleGenerator( id ) {
+				layout.toggleGenerator(id);
+			}
+			
+			function generatorEnabled( id ) {
+				return layout.generatorEnabled(id);
+			}
+
+	        function toggleSwitch( id , choice) {
+				layout.toggleSwitch(id,choice);
+			}
+			
+			function switchSet( id , choice ) {
+				return layout.switchSetting(id,choice);
+			}
+			
+			function setSpeed( ms ) {
+				return layout.msPerStep = Number(ms);
+			}
+			
+		</script>
+	</head>
+	<body>
+
+<div class="row">
+<div class="dashboard">
+<form>
+<BR>
+  <fieldset>
+    <legend>&nbsp;Goals&nbsp;</legend>
+<BR>
+Watch the top layer disperse the marbles and the bottom layer gather them.
+<BR>
+
+<BR>
+  </fieldset>
+  <fieldset>
+    <legend>&nbsp;Simulation&nbsp;</legend>
+<BR>
+    <label class="toggle">
+      <input type="checkbox" onclick="toggleSimulation()" id="simulation">
+      <span class="slider"></span>
+      <span class="labels" data-on="Running" data-off="Paused"></span>
+    </label>	
+    <BR><BR>
+    <input type="radio" name="speed" value="0" onclick="setSpeed('5')" id="speed_fast"/>
+    <label>Normal Speed</label><br />
+
+    <input type="radio" name="speed" value="1" onclick="setSpeed('100')" id="speed_slow" />
+    <label>Slow Speed</label><br />
+<BR>
+  </fieldset>
+  <fieldset>
+    <legend>&nbsp;Generators&nbsp;</legend>
+
+<BR>
+<input type="checkbox" onclick="toggleGenerator('gen_cyan')" id="gen_cyan">
+	<div style="display:inline-block; 
+        background: #008888; 
+        width:15px; 
+        height:15px; 
+        border-radius:125px"></div>
+Cyan Marbles
+<BR>
+
+<BR>
+    
+  </fieldset>
+  <fieldset>
+    <legend>&nbsp;Switches&nbsp;</legend>
+
+<BR>
+  </fieldset>
+</form>
+<BR><BR><BR>
+<div>[<a href="index.html">Home</a>]   </div>
+	
+</div>
+<div id="screen" class="screen">
+	
+</div>
+</div> 
+</div>
+
+		<script type="importmap">
+			{
+				"imports": {
+					"three": "./build/three.module.js",
+					"vehicle": "./ball.vehicle.module.js",
+					"three/addons/": "./jsm/"
+				}
+			}
+		</script>
+
+		<script type="module">
+
+			import * as THREE from 'three';
+			import * as VEHICLE from 'vehicle';
+	
+			function fetchLayout(url){
+			    var Httpreq = new XMLHttpRequest(); // a new request
+			    Httpreq.open("GET",url,false);
+			    Httpreq.send(null);
+			    return Httpreq.responseText;          
+			}
+
+			let jsonLayout = JSON.parse(fetchLayout('layers01.json'));
+	            
+	        const elem = document.getElementById('screen');
+	            
+            layout = new VEHICLE.SimpleTrackLayout(jsonLayout, window);
+			elem.appendChild( layout.getDomElement() );
+
+			layout.layout();
+
+	        document.getElementById('simulation').checked = simulationRunning();
+	        document.getElementById('speed_fast').checked = layout.msPerStep == 5;
+	        document.getElementById('speed_slow').checked = layout.msPerStep == 100;
+
+
+	        document.getElementById('gen_cyan').checked = generatorEnabled("gen_cyan");
+
+						
+			function animate( timestamp ) {
+				requestAnimationFrame( animate );
+				layout.move( timestamp );
+			}
+			
+			animate();
+
+		</script>
+
+	</body>
+</html>
