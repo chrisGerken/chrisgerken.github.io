@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>three.js webgl - Slider</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<link type="text/css" rel="stylesheet" href="mt.css">
+		<style>
+			b {
+				color: lightgreen;
+			}
+		</style>
+		<script>
+           
+			let layout;
+
+	        function toggleSimulation(  ) {
+				layout.toggleSimulation();
+			}
+			
+			function simulationRunning(  ) {
+				return layout.simulationRunning();
+			}
+
+	        function toggleGenerator( id ) {
+				layout.toggleGenerator(id);
+			}
+			
+			function generatorEnabled( id ) {
+				return layout.generatorEnabled(id);
+			}
+
+	        function toggleSwitch( id , choice) {
+				layout.toggleSwitch(id,choice);
+			}
+			
+			function switchSet( id , choice ) {
+				return layout.switchSetting(id,choice);
+			}
+			
+			function setSpeed( ms ) {
+				return layout.msPerStep = Number(ms);
+			}
+			
+		</script>
+	</head>
+	<body>
+
+<div class="row">
+<div class="dashboard">
+<form>
+<BR>
+  <fieldset>
+    <legend>&nbsp;Goals&nbsp;</legend>
+<BR>
+Fill every section of track with marbles, then clear the layout of all marbles.
+<BR>
+
+<BR>
+  </fieldset>
+  <fieldset>
+    <legend>&nbsp;Simulation&nbsp;</legend>
+<BR>
+    <input type="text" id="speed" maxLength="3" size="3"  readOnly=true disabled=true name="speed">
+    <input type="range" min="0" max="200" value="5" class="slider" id="speedSlider">
+    <BR><BR>
+    <label class="toggle">
+      <input type="checkbox" onclick="toggleSimulation()" id="simulation">
+      <span class="slider"></span>
+      <span class="labels" data-on="Running" data-off="Paused"></span>
+    </label>	
+    <BR><BR>
+    <input type="radio" name="speed" value="0" onclick="setSpeed('5')" id="speed_fast"/>
+    <label>Normal Speed</label><br />
+
+    <input type="radio" name="speed" value="1" onclick="setSpeed('100')" id="speed_slow" />
+    <label>Slow Speed</label><br />
+<BR>
+  </fieldset>
+  <fieldset>
+    <legend>&nbsp;Generators&nbsp;</legend>
+
+<BR>
+<input type="checkbox" onclick="toggleGenerator('gen01')" id="gen01">
+	<div style="display:inline-block; 
+        background: #880000; 
+        width:15px; 
+        height:15px; 
+        border-radius:125px"></div>
+Red Marbles
+<BR>
+
+<BR>
+    
+  </fieldset>
+  <fieldset>
+    <legend>&nbsp;Switches&nbsp;</legend>
+
+<BR>Switch 01<BR>
+ 
+    <input type="radio" name="man01" value="0" onclick="toggleSwitch('man01', '0')" id="man01_0"/>
+    <label>Straight</label><br />
+
+    <input type="radio" name="man01" value="1" onclick="toggleSwitch('man01', '1')" id="man01_1"/>
+    <label>Left</label><br />
+
+    <input type="radio" name="man01" value="2" onclick="toggleSwitch('man01', '2')" id="man01_2"/>
+    <label>Right</label><br />
+
+
+<BR>Switch 02<BR>
+ 
+    <input type="radio" name="man02" value="0" onclick="toggleSwitch('man02', '0')" id="man02_0"/>
+    <label>Straight</label><br />
+
+    <input type="radio" name="man02" value="1" onclick="toggleSwitch('man02', '1')" id="man02_1"/>
+    <label>Left</label><br />
+
+
+<BR>Switch 03<BR>
+ 
+    <input type="radio" name="man03" value="0" onclick="toggleSwitch('man03', '0')" id="man03_0"/>
+    <label>Straight</label><br />
+
+    <input type="radio" name="man03" value="1" onclick="toggleSwitch('man03', '1')" id="man03_1"/>
+    <label>Right</label><br />
+
+
+<BR>Switch 04<BR>
+ 
+    <input type="radio" name="man04" value="0" onclick="toggleSwitch('man04', '0')" id="man04_0"/>
+    <label>Straight</label><br />
+
+    <input type="radio" name="man04" value="1" onclick="toggleSwitch('man04', '1')" id="man04_1"/>
+    <label>Right</label><br />
+
+
+<BR>
+  </fieldset>
+</form>
+<BR><BR><BR>
+<div>[<a href="index.html">Home</a>]   </div>
+	
+</div>
+<div id="screen" class="screen">
+	
+</div>
+</div> 
+</div>
+
+		<script type="importmap">
+			{
+				"imports": {
+					"three": "./build/three.module.js",
+					"vehicle": "./ball.vehicle.module.js",
+					"three/addons/": "./jsm/"
+				}
+			}
+		</script>
+
+		<script type="module">
+
+			import * as THREE from 'three';
+			import * as VEHICLE from 'vehicle';
+	
+			function fetchLayout(url){
+			    var Httpreq = new XMLHttpRequest(); // a new request
+			    Httpreq.open("GET",url,false);
+			    Httpreq.send(null);
+			    return Httpreq.responseText;          
+			}
+
+			let jsonLayout = JSON.parse(fetchLayout('test.json'));
+	            
+	        const elem = document.getElementById('screen');
+	            
+            layout = new VEHICLE.SimpleTrackLayout(jsonLayout, window);
+			elem.appendChild( layout.getDomElement() );
+
+			layout.layout();
+
+			var slider = document.getElementById("speedSlider");
+			var speed = document.getElementById("speed");
+			speed.value = slider.value;
+			slider.oninput = function() {
+  				speed.value = this.value;
+			}
+			 
+	        document.getElementById('simulation').checked = simulationRunning();
+	        document.getElementById('speed_fast').checked = layout.msPerStep == 5;
+	        document.getElementById('speed_slow').checked = layout.msPerStep == 100;
+
+	        document.getElementById('man01_0').checked = switchSet("man01",0);
+	        document.getElementById('man01_1').checked = switchSet("man01",1);
+	        document.getElementById('man01_2').checked = switchSet("man01",2);
+
+	        document.getElementById('man02_0').checked = switchSet("man02",0);
+	        document.getElementById('man02_1').checked = switchSet("man02",1);
+
+	        document.getElementById('man03_0').checked = switchSet("man03",0);
+	        document.getElementById('man03_1').checked = switchSet("man03",1);
+
+	        document.getElementById('man04_0').checked = switchSet("man04",0);
+	        document.getElementById('man04_1').checked = switchSet("man04",1);
+
+
+	        document.getElementById('gen01').checked = generatorEnabled("gen01");
+
+						
+			function animate( timestamp ) {
+				requestAnimationFrame( animate );
+				layout.move( timestamp );
+			}
+			
+			animate();
+
+		</script>
+
+	</body>
+</html>

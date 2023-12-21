@@ -1,0 +1,108 @@
+{ 
+	"name":"Fill", 
+	"camera": {
+		"position": {"x":0,"y":0,"z":5},
+		"lookAt": 	{"x":0,"y":0,"z":0}
+	},
+	"layout":[
+
+
+		{"type":"setting","name":"pointSeparation","value":0.01} ,
+		{"type":"setting","name":"ballSafeDistance","value":10} ,
+		{"type":"setting","name":"defaultTrackColor","value":"darkgrey"} ,
+		{"type":"defineColor","name":"white","r":255,"g":255,"b":255} ,
+		{"type":"defineColor","name":"red","r":136,"g":0,"b":0} ,
+		{"type":"defineColor","name":"blue","r":0,"g":0,"b":136} ,
+		{"type":"defineColor","name":"green","r":0,"g":136,"b":0} ,
+		{"type":"defineColor","name":"yellow","r":136,"g":136,"b":0} ,
+		{"type":"defineColor","name":"purple","r":136,"g":0,"b":136} ,
+		{"type":"defineColor","name":"cyan","r":0,"g":136,"b":136} ,
+		{"type":"defineColor","name":"darkgrey","r":100,"g":100,"b":100} ,
+		{"type":"defineColor","name":"verydarkgrey","r":20,"g":20,"b":20} ,
+		{"type":"defineColor","name":"grey","r":169,"g":169,"b":169} ,
+		{"type":"defineColor","name":"darkgreen","r":0,"g":50,"b":0} ,
+
+		{"type":"light","kind":"directional","position":{"x":0, "y":0, "z":4},"color":"white","intensity":5} ,
+		{"type":"light","kind":"directional","position":{"x":0, "y":0, "z":-4},"color":"white","intensity":5} ,
+
+		{"type":"generator","every":10,"max":200,"balls":[{"color":"cyan","speed":2}], "tv": {"x":1.13, "y":-1.13, "z":0, "neswAngle":-135, "plane":"XY"  },"label":"gen_cyan","desc":"Cyan Marbles"} ,
+		{"type":"right","radius":0.1,"angle":180.0} , 
+		{"type":"switch","label":"sw01"} ,
+
+		{"type":"left","radius":1.5,"angle":90.0} , 
+		{"type":"manualSwitch","label":"man02","desc":"02","labelOffset":{"x":-0.25,"y":0.1,"z":0.1}} ,
+
+		{"type":"left","radius":1.5,"angle":90.0} , 
+		{"type":"left","radius":1.5,"angle":90.0} , 
+		{"type":"manualSwitch","label":"man04","desc":"04","labelOffset":{"x":-0.25,"y":0.1,"z":0.1}} ,
+
+		{"type":"left","radius":1.5,"angle":90.0} , 
+		{"type":"connectTo","label":"sw01"} , 
+
+		{"type":"setCurrent","label":"man02"} , 
+		{"type":"left","radius":0.375 ,"angle":90.0} , 
+		{"type":"left","radius":0.375 ,"angle":90.0} , 
+		{"type":"manualSwitch","label":"man06","desc":"06","labelOffset":{"x":-0.25,"y":0.1,"z":0.1}} ,
+		{"type":"left","radius":0.375 ,"angle":90.0} , 
+		{"type":"left","radius":0.375 ,"angle":90.0} , 
+		{"type":"connectTo","label":"man02"} , 
+
+		{"type":"setCurrent","label":"man04"} , 
+		{"type":"left","radius":0.375 ,"angle":90.0} , 
+		{"type":"painter","color":"red"} , 
+		{"type":"left","radius":0.375 ,"angle":90.0} , 
+		{"type":"manualSwitch","label":"man08","desc":"08","labelOffset":{"x":-0.25,"y":0.1,"z":0.1}} ,
+		{"type":"left","radius":0.375 ,"angle":90.0} , 
+		{"type":"painter","color":"cyan"} , 
+		{"type":"left","radius":0.375 ,"angle":90.0} , 
+		{"type":"connectTo","label":"man04"} , 
+
+
+		{"type":"setCurrent","label":"man06"} , 
+		{"type":"right","radius":0.75 ,"angle":90.0} , 
+		{"type":"manualSwitch","label":"man05","desc":"05","labelOffset":{"x":-0.25,"y":0.1,"z":0.1}} ,
+		{"type":"right","radius":0.75 ,"angle":90.0} , 
+		{"type":"connectTo","label":"man08"} , 
+		{"type":"right","radius":0.75 ,"angle":90.0} , 
+		{"type":"manualSwitch","label":"man07","desc":"07","labelOffset":{"x":-0.25,"y":0.1,"z":0.1}} ,
+		{"type":"right","radius":0.75 ,"angle":90.0} , 
+		{"type":"connectTo","label":"man06"}  ,
+
+		{"type":"setCurrent","label":"man05"} , 
+		{"type":"left","radius":0.2 ,"angle":135.0} , 
+		{"type":"plane","plane":"XZ"} ,
+		{"type":"right","radius":0.1 ,"angle":70.0} , 
+		{"type":"straight","length":0.1} ,
+		{"type":"left","radius":0.1 ,"angle":70.0} , 
+		{"type":"plane","plane":"XY"} ,
+		{"type":"straight","length":1.5} ,
+		{"type":"left","radius":0.2 ,"angle":180.0} , 
+		{"type":"straight","length":1.5} ,
+		{"type":"plane","plane":"XZ"} ,
+		{"type":"right","radius":0.1 ,"angle":70.0} , 
+		{"type":"straight","length":0.1} ,
+		{"type":"left","radius":0.1 ,"angle":70.0} , 
+		{"type":"plane","plane":"XY"} ,
+		{"type":"left","radius":0.2 ,"angle":45.0} , 
+		{"type":"connectTo","label":"man05"} , 
+
+		{"type":"setCurrent","label":"man07"} , 
+		{"type":"left","radius":0.2 ,"angle":135.0} , 
+		{"type":"plane","plane":"XZ"} ,
+		{"type":"left","radius":0.1 ,"angle":70.0} , 
+		{"type":"straight","length":0.1} ,
+		{"type":"right","radius":0.1 ,"angle":70.0} , 
+		{"type":"plane","plane":"XY"} ,
+		{"type":"straight","length":1.5} ,
+		{"type":"left","radius":0.2 ,"angle":180.0} , 
+		{"type":"straight","length":1.5} ,
+		{"type":"plane","plane":"XZ"} ,
+		{"type":"left","radius":0.1 ,"angle":70.0} , 
+		{"type":"straight","length":0.1} ,
+		{"type":"right","radius":0.1 ,"angle":70.0} , 
+		{"type":"plane","plane":"XY"} ,
+		{"type":"left","radius":0.2 ,"angle":45.0} , 
+		{"type":"connectTo","label":"man07"} 
+
+		]
+	}

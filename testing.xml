@@ -11,6 +11,49 @@
 
         </page>
 
+        <page  name="layers02"  title="Layers 02">
+
+
+            <goal>Watch the top layer disperse the marbles and the bottom layer gather them.</goal>
+
+            <generator  label="Cyan Marbles"   color="008888"  id="gen_cyan" />
+
+        </page>
+
+        <page  name="nested"  title="Nested">
+
+
+            <goal>Just watch.</goal>
+
+            <generator  label="Cyan Marbles"   color="008888"  id="gen_cyan" />
+  
+            <switch  label="02"  id="man02"  >
+                <track  label="In"  index="1"  id="1" />
+                <track  label="Out" index="0"  id="0" />
+            </switch>
+            <switch  label="04"  id="man04"  >
+                <track  label="In"  index="1"  id="1" />
+                <track  label="Out" index="0"  id="0" />
+            </switch>
+            <switch  label="05"  id="man05"  >
+                <track  label="In"  index="0"  id="0" />
+                <track  label="Out" index="1"  id="1" />
+            </switch>
+            <switch  label="06"  id="man06"  >
+                <track  label="In"  index="1"  id="1" />
+                <track  label="Out" index="0"  id="0" />
+            </switch>
+            <switch  label="07"  id="man07"  >
+                <track  label="In"  index="0"  id="0" />
+                <track  label="Out" index="1"  id="1" />
+            </switch>
+            <switch  label="08"  id="man08"  >
+                <track  label="In"  index="1"  id="1" />
+                <track  label="Out" index="0"  id="0" />
+            </switch>
+
+        </page>
+
 
 
 
