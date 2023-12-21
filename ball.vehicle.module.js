@@ -848,6 +848,15 @@ class Track {
 
 		return tv;
 	}
+	
+	getColor() {
+		return this.getColorable().color;
+	}
+	
+	setColor( newColor ) {
+		this.getColorable().setColor(newColor);
+	}
+
 }
 
 const changeConfig = {
@@ -1116,7 +1125,9 @@ class ManualSwitchTrack extends Track {
 	}
 
  	switch( choice ) {
+//		this.nexts[this.outIndex].setColor(this.nexts[this.outIndex].color);
 		this.outIndex = Number(choice);
+//		this.nexts[this.outIndex].setColor(0xff0000);
 	}
 	
 	getNextTrack(vehicle) {
@@ -1229,9 +1240,10 @@ class StraightTrack extends Track  {
 		this.color =  lookupColor( lookup( jobj , "color" , defaultTrackColor ));
 		this.type = "straight";
 		this.logConstruct(JSON.stringify(this));
+		this.buildDisplayableObject();
 	}
 
-	getDisplayableObject( ) {
+	buildDisplayableObject( ) {
 		
 		let linePoints = Math.ceil(this.length / pointSeparation);
 
@@ -1262,13 +1274,23 @@ class StraightTrack extends Track  {
 			
 		const lineMaterial = new THREE.LineBasicMaterial( { color: this.color } );
 		const lineGeometry = new THREE.BufferGeometry().setFromPoints( stPoints );			
-		const line = new THREE.Line( lineGeometry, lineMaterial );
+		this.line = new THREE.Line( lineGeometry, lineMaterial );
 		
 		this.logPlacement(this.type+": from "+this.tv.asString()+" to "+this.endTv.asString());
 		
-		line.userData = { "mtKind": this.type };
+		this.line.userData = { "mtKind": this.type };
 		
-		return [ line ];
+	}
+
+	getDisplayableObject( ) {
+		
+		return [ this.line ];
+
+	}
+	
+	setColor( newColor ) {
+		this.line.color = newColor;
+		this.line.needsUpdate = true;
 	}
 
 }
@@ -1428,11 +1450,16 @@ class LeftCurveTrack extends CurveTrack {
 		
 		this.logPlacement(this.type+": from "+this.tv.asString()+" to "+this.endTv.asString());
 		
-		let cline = new THREE.Line( geometry, material );
-		cline.userData = { "mtKind": this.type };
+		this.cline = new THREE.Line( geometry, material );
+		this.cline.userData = { "mtKind": this.type };
 		
-		return [ cline ];
+		return [ this.cline ];
 
+	}
+	
+	setColor( newColor ) {
+		this.cline.color = newColor;
+		this.cline.needsUpdate = true;
 	}
 		
 }
@@ -1465,11 +1492,16 @@ class RightCurveTrack extends CurveTrack {
 		
 		this.logPlacement(this.type+": from "+this.tv.asString()+" to "+this.endTv.asString());
 		
-		let cline = new THREE.Line( geometry, material );
-		cline.userData = { "mtKind": this.type };
+		this.cline = new THREE.Line( geometry, material );
+		this.cline.userData = { "mtKind": this.type };
 		
-		return [ cline ];
+		return [ this.cline ];
 
+	}
+	
+	setColor( newColor ) {
+		this.cline.color = newColor;
+		this.cline.needsUpdate = true;
 	}
 	
 }
