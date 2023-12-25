@@ -16,7 +16,7 @@
 		{"type":"defineColor","name":"white","r":255,"g":255,"b":255} ,
 
 		{"type":"light","kind":"directional","position":{"x":1, "y":1, "z":4},"color":"white","intensity":5} ,
-		{"type":"generator","every":4,"max":60,"balls":[{"color":"blue","speed":3}], "tv": {"x":-2.3, "y":-0.8, "z":0, "neswAngle":0, "plane":"XY"  }} ,
+		{"type":"generator","every":4,"max":60,"balls":[{"color":"blue","speed":3}], "tv": {"x":-2.3, "y":-0.8, "z":0, "neswAngle":0, "plane":"XY"  },"label":"gen_blue","desc":""} ,
 		{"type":"straight","length":0.3} ,
 		{"type":"switch","label":"sw00"} ,
 		{"type":"straight","length":1.0} ,
@@ -30,6 +30,7 @@
 		{"type":"left","radius":0.1,"angle":90} ,
 		{"type":"straight","length":1.4} ,
 		{"type":"left","radius":0.1,"angle":90} ,
+		{"type":"manualSwitch","label":"disp","desc":"Overflow","labelOffset":{"x":0.0,"y":0.05,"z":0.0}} ,
 		{"type":"straight","length":1.0} ,
 		{"type":"sort","label":"sort01","active":true} ,
 
@@ -126,9 +127,12 @@
 		{"type":"painter","color":"blue"} ,
 		{"type":"right","radius":0.1,"angle":90} ,
 		{"type":"left","radius":0.1,"angle":90} ,
-		{"type":"connectTo","label":"sw00"} 
+		{"type":"connectTo","label":"sw00"} , 
 
-
+		{"type":"setCurrent","label":"disp"} ,
+		{"type":"left","radius":0.1,"angle":90} ,
+		{"type":"straight","length":0.1} ,
+		{"type":"disposal"} 
 
 		]
 	}

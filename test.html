@@ -14,8 +14,8 @@
            
 			let layout;
 
-	        function toggleSimulation(  ) {
-				layout.toggleSimulation();
+	        function toggleSimulation( flag ) {
+				layout.toggleSimulation( flag );
 			}
 			
 			function simulationRunning(  ) {
@@ -39,7 +39,16 @@
 			}
 			
 			function setSpeed( ms ) {
-				return layout.msPerStep = Number(ms);
+			    if (ms > 0) {
+			    	layout.msPerStep = 1000 / Number(ms); 
+			    }    
+			    if (ms == 0) {
+					document.getElementById('rate').innerHTML = "Simulation paused";
+			    	toggleSimulation( false );
+			    } else {
+					document.getElementById('rate').innerHTML = "Frames/Second: "+ms;
+			    	toggleSimulation( true );
+  				}
 			}
 			
 		</script>
@@ -54,25 +63,16 @@
     <legend>&nbsp;Goals&nbsp;</legend>
 <BR>
 Fill every section of track with marbles, then clear the layout of all marbles.
-<BR>
+<BR><BR>
 
 <BR>
   </fieldset>
   <fieldset>
     <legend>&nbsp;Simulation&nbsp;</legend>
 <BR>
-    <label class="toggle">
-      <input type="checkbox" onclick="toggleSimulation()" id="simulation">
-      <span class="slider"></span>
-      <span class="labels" data-on="Running" data-off="Paused"></span>
-    </label>	
-    <BR><BR>
-    <input type="radio" name="speed" value="0" onclick="setSpeed('5')" id="speed_fast"/>
-    <label>Normal Speed</label><br />
-
-    <input type="radio" name="speed" value="1" onclick="setSpeed('100')" id="speed_slow" />
-    <label>Slow Speed</label><br />
-<BR>
+    <input type="range" min="0" max="100" class="slider" id="speedSlider">
+<BR><BR>
+<div class="rateOuter"><div id="rate" class="rateInner"></div></div>
   </fieldset>
   <fieldset>
     <legend>&nbsp;Generators&nbsp;</legend>
@@ -176,9 +176,14 @@ Red Marbles
 
 			layout.layout();
 
-	        document.getElementById('simulation').checked = simulationRunning();
-	        document.getElementById('speed_fast').checked = layout.msPerStep == 5;
-	        document.getElementById('speed_slow').checked = layout.msPerStep == 100;
+			var slider = document.getElementById("speedSlider");
+			slider.oninput = function() {
+			    setSpeed(this.value);
+			}
+
+			slider.value = 1000 / layout.msPerStep;		 
+	        setSpeed(slider.value);
+
 
 	        document.getElementById('man01_0').checked = switchSet("man01",0);
 	        document.getElementById('man01_1').checked = switchSet("man01",1);
@@ -195,11 +200,12 @@ Red Marbles
 
 
 	        document.getElementById('gen01').checked = generatorEnabled("gen01");
-
 						
 			function animate( timestamp ) {
 				requestAnimationFrame( animate );
 				layout.move( timestamp );
+	        	document.getElementById('gen01').checked = generatorEnabled("gen01");
+
 			}
 			
 			animate();
