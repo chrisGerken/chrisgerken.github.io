@@ -4,17 +4,105 @@
 		<title>three.js webgl - Faces</title>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-		<link type="text/css" rel="stylesheet" href="main.css">
+		<link type="text/css" rel="stylesheet" href="mt.css">
 		<style>
 			b {
 				color: lightgreen;
 			}
 		</style>
+		<script>
+           
+			let layout;
+
+	        function toggleSimulation( flag ) {
+				layout.toggleSimulation( flag );
+			}
+			
+			function simulationRunning(  ) {
+				return layout.simulationRunning();
+			}
+
+	        function toggleGenerator( id ) {
+				layout.toggleGenerator(id);
+			}
+			
+			function generatorEnabled( id ) {
+				return layout.generatorEnabled(id);
+			}
+
+	        function toggleSwitch( id , choice) {
+				layout.toggleSwitch(id,choice);
+			}
+			
+			function switchSet( id , choice ) {
+				return layout.switchSetting(id,choice);
+			}
+			
+			function setSpeed( ms ) {
+			    if (ms > 0) {
+			    	layout.msPerStep = 1000 / Number(ms); 
+			    }    
+			    if (ms == 0) {
+					document.getElementById('rate').innerHTML = "Simulation paused";
+			    	toggleSimulation( false );
+			    } else {
+					document.getElementById('rate').innerHTML = "Frames/Second: "+ms;
+			    	toggleSimulation( true );
+  				}
+			}
+			
+		</script>
 	</head>
 	<body>
 
-<div>[<a href="faces.html">Faces</a>]  [<a href="waterfalls.html">Waterfalls</a>]  [<a href="saucers.html">Saucers</a>]  [<a href="index.html">Home</a>]   </div>
-<div id="screen"></div>
+<div class="row">
+<div class="dashboard">
+<form>
+<BR>
+  <fieldset>
+    <legend>&nbsp;Goals&nbsp;</legend>
+<BR>
+Watch the faces fill at different speeds.
+<BR><BR>
+
+<BR>
+  </fieldset>
+  <fieldset>
+    <legend>&nbsp;Simulation&nbsp;</legend>
+<BR>
+    <input type="range" min="0" max="100" class="slider" id="speedSlider">
+<BR><BR>
+<div class="rateOuter"><div id="rate" class="rateInner"></div></div>
+  </fieldset>
+  <fieldset>
+    <legend>&nbsp;Generators&nbsp;</legend>
+
+<BR>
+None
+<BR>
+
+<BR>
+    
+  </fieldset>
+  <fieldset>
+    <legend>&nbsp;Switches&nbsp;</legend>
+
+<BR>
+None
+<BR>
+
+<BR>
+  </fieldset>
+</form>
+<BR><BR><BR>
+<div>[<a href="index.html">Home</a>]   </div>
+	
+</div>
+<div id="screen" class="screen">
+	
+</div>
+</div> 
+</div>
 
 		<script type="importmap">
 			{
@@ -42,14 +130,25 @@
 	            
 	        const elem = document.getElementById('screen');
 	            
-            const layout = new VEHICLE.SimpleTrackLayout(jsonLayout, window);
+            layout = new VEHICLE.SimpleTrackLayout(jsonLayout, window);
 			elem.appendChild( layout.getDomElement() );
-//			document.body.appendChild( layout.getDomElement() );
+
 			layout.layout();
+
+			var slider = document.getElementById("speedSlider");
+			slider.oninput = function() {
+			    setSpeed(this.value);
+			}
+
+			slider.value = 1000 / layout.msPerStep;		 
+	        setSpeed(slider.value);
+
+
 						
 			function animate( timestamp ) {
 				requestAnimationFrame( animate );
 				layout.move( timestamp );
+
 			}
 			
 			animate();

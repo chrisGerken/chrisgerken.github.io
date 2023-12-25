@@ -1,20 +1,159 @@
 <!DOCTYPE html>
 <html lang="en">
 	<head>
-		<title>three.js webgl - hack</title>
+		<title>three.js webgl - Rush Hour</title>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-		<link type="text/css" rel="stylesheet" href="main.css">
+		<link type="text/css" rel="stylesheet" href="mt.css">
 		<style>
 			b {
 				color: lightgreen;
 			}
 		</style>
+		<script>
+           
+			let layout;
+
+	        function toggleSimulation( flag ) {
+				layout.toggleSimulation( flag );
+			}
+			
+			function simulationRunning(  ) {
+				return layout.simulationRunning();
+			}
+
+	        function toggleGenerator( id ) {
+				layout.toggleGenerator(id);
+			}
+			
+			function generatorEnabled( id ) {
+				return layout.generatorEnabled(id);
+			}
+
+	        function toggleSwitch( id , choice) {
+				layout.toggleSwitch(id,choice);
+			}
+			
+			function switchSet( id , choice ) {
+				return layout.switchSetting(id,choice);
+			}
+			
+			function setSpeed( ms ) {
+			    if (ms > 0) {
+			    	layout.msPerStep = 1000 / Number(ms); 
+			    }    
+			    if (ms == 0) {
+					document.getElementById('rate').innerHTML = "Simulation paused";
+			    	toggleSimulation( false );
+			    } else {
+					document.getElementById('rate').innerHTML = "Frames/Second: "+ms;
+			    	toggleSimulation( true );
+  				}
+			}
+			
+		</script>
 	</head>
 	<body>
 
-<div>[<a href="rushHour.html">Rush Hour</a>]  [<a href="transforms.html">Transforms</a>]  [<a href="index.html">Home</a>]   </div>
-<div id="screen"></div>
+<div class="row">
+<div class="dashboard">
+<form>
+<BR>
+  <fieldset>
+    <legend>&nbsp;Goals&nbsp;</legend>
+<BR>
+Observe how traffic lights and different marble speeds result in temporary traffic jams
+<BR><BR>
+Re-enable generators to increase congestion and use manual switches to selectively dispose of marbles.
+<BR><BR>
+
+<BR>
+  </fieldset>
+  <fieldset>
+    <legend>&nbsp;Simulation&nbsp;</legend>
+<BR>
+    <input type="range" min="0" max="100" class="slider" id="speedSlider">
+<BR><BR>
+<div class="rateOuter"><div id="rate" class="rateInner"></div></div>
+  </fieldset>
+  <fieldset>
+    <legend>&nbsp;Generators&nbsp;</legend>
+
+<BR>
+<input type="checkbox" onclick="toggleGenerator('gen_blue')" id="gen_blue">
+	<div style="display:inline-block; 
+        background: #000088; 
+        width:15px; 
+        height:15px; 
+        border-radius:125px"></div>
+Slow Marbles
+<BR>
+
+<BR>
+<input type="checkbox" onclick="toggleGenerator('gen_yellow')" id="gen_yellow">
+	<div style="display:inline-block; 
+        background: #888800; 
+        width:15px; 
+        height:15px; 
+        border-radius:125px"></div>
+Regular Marbles
+<BR>
+
+<BR>
+<input type="checkbox" onclick="toggleGenerator('gen_green')" id="gen_green">
+	<div style="display:inline-block; 
+        background: #008800; 
+        width:15px; 
+        height:15px; 
+        border-radius:125px"></div>
+Fast Marbles
+<BR>
+
+<BR>
+    
+  </fieldset>
+  <fieldset>
+    <legend>&nbsp;Switches&nbsp;</legend>
+
+<BR>Dispose Blue<BR>
+ 
+    <input type="radio" name="disp_blue" value="0" onclick="toggleSwitch('disp_blue', '0')" id="disp_blue_0"/>
+    <label>Keep</label><br />
+
+    <input type="radio" name="disp_blue" value="1" onclick="toggleSwitch('disp_blue', '1')" id="disp_blue_1"/>
+    <label>Dispose</label><br />
+
+
+<BR>Dispose Yellow<BR>
+ 
+    <input type="radio" name="disp_yellow" value="0" onclick="toggleSwitch('disp_yellow', '0')" id="disp_yellow_0"/>
+    <label>Keep</label><br />
+
+    <input type="radio" name="disp_yellow" value="1" onclick="toggleSwitch('disp_yellow', '1')" id="disp_yellow_1"/>
+    <label>Dispose</label><br />
+
+
+<BR>Dispose Green<BR>
+ 
+    <input type="radio" name="disp_green" value="0" onclick="toggleSwitch('disp_green', '0')" id="disp_green_0"/>
+    <label>Keep</label><br />
+
+    <input type="radio" name="disp_green" value="1" onclick="toggleSwitch('disp_green', '1')" id="disp_green_1"/>
+    <label>Dispose</label><br />
+
+
+<BR>
+  </fieldset>
+</form>
+<BR><BR><BR>
+<div>[<a href="index.html">Home</a>]   </div>
+	
+</div>
+<div id="screen" class="screen">
+	
+</div>
+</div> 
+</div>
 
 		<script type="importmap">
 			{
@@ -42,14 +181,43 @@
 	            
 	        const elem = document.getElementById('screen');
 	            
-            const layout = new VEHICLE.SimpleTrackLayout(jsonLayout, window);
+            layout = new VEHICLE.SimpleTrackLayout(jsonLayout, window);
 			elem.appendChild( layout.getDomElement() );
-//			document.body.appendChild( layout.getDomElement() );
+
 			layout.layout();
+
+			var slider = document.getElementById("speedSlider");
+			slider.oninput = function() {
+			    setSpeed(this.value);
+			}
+
+			slider.value = 1000 / layout.msPerStep;		 
+	        setSpeed(slider.value);
+
+
+	        document.getElementById('disp_blue_0').checked = switchSet("disp_blue",0);
+	        document.getElementById('disp_blue_1').checked = switchSet("disp_blue",1);
+
+	        document.getElementById('disp_yellow_0').checked = switchSet("disp_yellow",0);
+	        document.getElementById('disp_yellow_1').checked = switchSet("disp_yellow",1);
+
+	        document.getElementById('disp_green_0').checked = switchSet("disp_green",0);
+	        document.getElementById('disp_green_1').checked = switchSet("disp_green",1);
+
+
+	        document.getElementById('gen_blue').checked = generatorEnabled("gen_blue");
+
+	        document.getElementById('gen_yellow').checked = generatorEnabled("gen_yellow");
+
+	        document.getElementById('gen_green').checked = generatorEnabled("gen_green");
 						
 			function animate( timestamp ) {
 				requestAnimationFrame( animate );
 				layout.move( timestamp );
+	        	document.getElementById('gen_blue').checked = generatorEnabled("gen_blue");
+	        	document.getElementById('gen_yellow').checked = generatorEnabled("gen_yellow");
+	        	document.getElementById('gen_green').checked = generatorEnabled("gen_green");
+
 			}
 			
 			animate();

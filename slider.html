@@ -14,12 +14,8 @@
            
 			let layout;
 
-	        function toggleSimulation(  ) {
-				layout.toggleSimulation();
-			}
-			
-			function simulationRunning(  ) {
-				return layout.simulationRunning();
+	        function toggleSimulation( flag ) {
+				layout.toggleSimulation( flag );
 			}
 
 	        function toggleGenerator( id ) {
@@ -39,7 +35,17 @@
 			}
 			
 			function setSpeed( ms ) {
-				return layout.msPerStep = Number(ms);
+			    if (ms > 0) {
+			    	layout.msPerStep = 1000 / Number(ms); 
+			    }    
+			    if (ms == 0) {
+			    	speed.value = "Simulation paused";
+			    	toggleSimulation( false );
+			    } else {
+			        speed.value = "Frames/Second: "+ms;
+			    	toggleSimulation( true );
+  				}
+				document.getElementById('rate').innerHTML = speed.value;
 			}
 			
 		</script>
@@ -61,21 +67,11 @@ Fill every section of track with marbles, then clear the layout of all marbles.
   <fieldset>
     <legend>&nbsp;Simulation&nbsp;</legend>
 <BR>
-    <input type="text" id="speed" maxLength="3" size="3"  readOnly=true disabled=true name="speed">
-    <input type="range" min="0" max="200" value="5" class="slider" id="speedSlider">
-    <BR><BR>
-    <label class="toggle">
-      <input type="checkbox" onclick="toggleSimulation()" id="simulation">
-      <span class="slider"></span>
-      <span class="labels" data-on="Running" data-off="Paused"></span>
-    </label>	
-    <BR><BR>
-    <input type="radio" name="speed" value="0" onclick="setSpeed('5')" id="speed_fast"/>
-    <label>Normal Speed</label><br />
-
-    <input type="radio" name="speed" value="1" onclick="setSpeed('100')" id="speed_slow" />
-    <label>Slow Speed</label><br />
+    <input type="range" min="0" max="200" class="slider" id="speedSlider">
 <BR>
+    <input type="text" id="speed" readOnly=true disabled=true name="speed">
+<BR>
+    <div id="rate"></div>
   </fieldset>
   <fieldset>
     <legend>&nbsp;Generators&nbsp;</legend>
@@ -181,14 +177,12 @@ Red Marbles
 
 			var slider = document.getElementById("speedSlider");
 			var speed = document.getElementById("speed");
-			speed.value = slider.value;
 			slider.oninput = function() {
-  				speed.value = this.value;
+			    setSpeed(this.value);
 			}
-			 
-	        document.getElementById('simulation').checked = simulationRunning();
-	        document.getElementById('speed_fast').checked = layout.msPerStep == 5;
-	        document.getElementById('speed_slow').checked = layout.msPerStep == 100;
+
+					 
+	        setSpeed(layout.msPerStep);
 
 	        document.getElementById('man01_0').checked = switchSet("man01",0);
 	        document.getElementById('man01_1').checked = switchSet("man01",1);

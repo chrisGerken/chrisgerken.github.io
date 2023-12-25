@@ -200,7 +200,7 @@ class SimpleTrackLayout {
 		this.fluid = [ ];
 		this.fixed = [ ];
 		this.nextStep = 0;
-		this.msPerStep = 5;
+		this.msPerStep = 50;
 		this.window = window;
 		this.rcPointer = null;
 		this.running = true;
@@ -497,8 +497,8 @@ class SimpleTrackLayout {
 		return this.running;
 	}
 	
-	toggleSimulation() {
-		this.running = !this.running;
+	toggleSimulation( flag ) {
+		this.running = flag;
 	}
 	
 	toggleGenerator( id ) {
@@ -1556,20 +1556,22 @@ class RegularGenerator extends Track {
 		this.index++;
 		if (this.index >= this.every) {
 			this.index = 0;
-			this.created ++;
-			if ((this.max == -1) | (this.max >= this.created)) {
-				if (this.nextTrack.isOccupied(0) | !this.enabled) {
-					this.created--;
-					return;
-				}
-				this.colorsIndex++;
-				if (this.colorsIndex >= this.balls.length) {
-					this.colorsIndex = 0;
-				}
-				let currentBall = this.balls[this.colorsIndex];
-				let newBall = layout.addBallVehicle( currentBall, this.nextTrack, 0 );
-				this.nextTrack.setOccupied(newBall, true);
+			if (this.enabled & (this.created == this.max)) {
+				this.enabled = false;
+				this.max = -1;
 			}
+			if (this.nextTrack.isOccupied(0) | !this.enabled) {
+				return;
+			}
+			this.created ++;
+			this.colorsIndex++;
+			if (this.colorsIndex >= this.balls.length) {
+				this.colorsIndex = 0;
+			}
+			let currentBall = this.balls[this.colorsIndex];
+			let newBall = layout.addBallVehicle( currentBall, this.nextTrack, 0 );
+			this.nextTrack.setOccupied(newBall, true);
+
 		}
 	}
 

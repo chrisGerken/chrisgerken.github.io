@@ -8,7 +8,7 @@
 
 
 		{"type":"setting","name":"pointSeparation","value":0.01} ,
-		{"type":"setting","name":"ballSafeDistance","value":10} ,
+		{"type":"setting","name":"ballSafeDistance","value":14} ,
 		{"type":"setting","name":"defaultTrackColor","value":"darkgrey"} ,
 		{"type":"defineColor","name":"white","r":255,"g":255,"b":255} ,
 		{"type":"defineColor","name":"red","r":136,"g":0,"b":0} ,
@@ -1681,7 +1681,7 @@
 
 
 
-		{"type":"generator","every":10,"max":300,"balls":[{"color":"cyan","speed":3}], "tv": {"x":0, "y":-0.2, "z":0, "neswAngle":90, "plane":"YZ"  },"label":"gen_cyan","desc":"Cyan Marbles"} ,
+		{"type":"generator","every":10,"max":100,"balls":[{"color":"cyan","speed":3}], "tv": {"x":0, "y":-0.2, "z":0, "neswAngle":90, "plane":"YZ"  },"label":"gen_cyan","desc":"Cyan Marbles"} ,
 		{"type":"run", "label":"lay01"} 
 
 		]

@@ -2,6 +2,52 @@
 
     <site  name="chrisgerken.github.io">
 
+        <page  name="faces"  title="Faces">
+
+
+            <goal>Watch the faces fill at different speeds.</goal>
+
+        </page>
+
+        <page  name="rushHour"  title="Rush Hour">
+
+            <goal>Observe how traffic lights and different marble speeds result in temporary traffic jams</goal>
+            <goal>Re-enable generators to increase congestion and use manual switches to selectively dispose of marbles.</goal>
+
+            <generator  label="Slow Marbles"      color="000088"  id="gen_blue" />
+            <generator  label="Regular Marbles"   color="888800"  id="gen_yellow" />
+            <generator  label="Fast Marbles"      color="008800"  id="gen_green" />
+
+            <switch  label="Dispose Blue"  id="disp_blue"  >
+                <track  label="Keep"     index="0"  id="0" />
+                <track  label="Dispose"  index="1"  id="1" />
+            </switch>
+            <switch  label="Dispose Yellow"  id="disp_yellow"  >
+                <track  label="Keep"     index="0"  id="0" />
+                <track  label="Dispose"  index="1"  id="1" />
+            </switch>
+            <switch  label="Dispose Green"  id="disp_green"  >
+                <track  label="Keep"     index="0"  id="0" />
+                <track  label="Dispose"  index="1"  id="1" />
+            </switch>
+
+        </page>
+
+        <page  name="transforms"  title="Transforms">
+
+
+            <goal>Observe how painters, color-based switches and random switches move the marbles through the process.</goal>
+            <goal>Re-enable the generator to add more marbles and use the manual switch to get rid of marbles.</goal>
+
+            <generator  label="Originals"      color="000088"  id="gen_blue" />
+  
+            <switch  label="Overflow"  id="disp"  >
+                <track  label="Keep"     index="0"  id="0" />
+                <track  label="Dispose"  index="1"  id="1" />
+            </switch>
+
+        </page>
+
         <page  name="layers01"  title="Layers 01">
 
 
