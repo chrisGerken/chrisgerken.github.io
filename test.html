@@ -30,6 +30,14 @@
 				return layout.generatorEnabled(id);
 			}
 
+	        function toggleCutoff( id ) {
+				layout.toggleCutoff(id);
+			}
+			
+			function cutoffOpen( id ) {
+				return layout.cutoffOpen(id);
+			}
+
 	        function toggleSwitch( id , choice) {
 				layout.toggleSwitch(id,choice);
 			}
@@ -133,6 +141,14 @@ Red Marbles
 
 
 <BR>
+  </fieldset>
+  <fieldset>
+    <legend>&nbsp;Cutoffs&nbsp;</legend>
+
+<BR>
+None
+<BR>
+
   </fieldset>
 </form>
 <BR><BR><BR>

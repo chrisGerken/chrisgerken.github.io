@@ -9,6 +9,12 @@
 
         </page>
 
+        <page  name="workbench"  title="Workbench">
+
+            <goal>WIP</goal>
+
+        </page>
+
         <page  name="rushHour"  title="Rush Hour">
 
             <goal>Observe how traffic lights and different marble speeds result in temporary traffic jams</goal>
@@ -45,6 +51,27 @@
                 <track  label="Keep"     index="0"  id="0" />
                 <track  label="Dispose"  index="1"  id="1" />
             </switch>
+
+        </page>
+
+        <page  name="waterfalls"  title="Waterfalls">
+
+
+            <goal>Observe how color-based switches and cutoffs controll how the marbles through the process.</goal>
+
+            <generator  label="Multi-Color"      color="ffffff"  id="gen_multi" />
+
+            <switch  label="Overflow"  id="disp_overflow"  >
+                <track  label="keep"  	index="0"  id="0" />
+                <track  label="dispose" index="1"  id="1" />
+            </switch>
+
+			<cutoff     label="Main"    id="cutoff_main"  />
+			<cutoff     label="Green"    id="cutoff_green"  />
+			<cutoff     label="Purple"   id="cutoff_purple"  />
+			<cutoff     label="Yellow"   id="cutoff_yellow"  />
+			<cutoff     label="Red"      id="cutoff_red"  />
+			<cutoff     label="Blue"     id="cutoff_blue"  />
 
         </page>
 

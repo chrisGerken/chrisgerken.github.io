@@ -4,17 +4,152 @@
 		<title>three.js webgl - Waterfalls</title>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-		<link type="text/css" rel="stylesheet" href="main.css">
+		<link type="text/css" rel="stylesheet" href="mt.css">
 		<style>
 			b {
 				color: lightgreen;
 			}
 		</style>
+		<script>
+           
+			let layout;
+
+	        function toggleSimulation( flag ) {
+				layout.toggleSimulation( flag );
+			}
+			
+			function simulationRunning(  ) {
+				return layout.simulationRunning();
+			}
+
+	        function toggleGenerator( id ) {
+				layout.toggleGenerator(id);
+			}
+			
+			function generatorEnabled( id ) {
+				return layout.generatorEnabled(id);
+			}
+
+	        function toggleCutoff( id ) {
+				layout.toggleCutoff(id);
+			}
+			
+			function cutoffOpen( id ) {
+				return layout.cutoffOpen(id);
+			}
+
+	        function toggleSwitch( id , choice) {
+				layout.toggleSwitch(id,choice);
+			}
+			
+			function switchSet( id , choice ) {
+				return layout.switchSetting(id,choice);
+			}
+			
+			function setSpeed( ms ) {
+			    if (ms > 0) {
+			    	layout.msPerStep = 1000 / Number(ms); 
+			    }    
+			    if (ms == 0) {
+					document.getElementById('rate').innerHTML = "Simulation paused";
+			    	toggleSimulation( false );
+			    } else {
+					document.getElementById('rate').innerHTML = "Frames/Second: "+ms;
+			    	toggleSimulation( true );
+  				}
+			}
+			
+		</script>
 	</head>
 	<body>
 
-<div>[<a href="faces.html">Faces</a>]  [<a href="waterfalls.html">Waterfalls</a>]  [<a href="saucers.html">Saucers</a>]  [<a href="index.html">Home</a>]   </div>
-<div id="screen"></div>
+<div class="row">
+<div class="dashboard">
+<form>
+<BR>
+  <fieldset>
+    <legend>&nbsp;Goals&nbsp;</legend>
+<BR>
+Observe how color-based switches and cutoffs controll how the marbles through the process.
+<BR><BR>
+
+<BR>
+  </fieldset>
+  <fieldset>
+    <legend>&nbsp;Simulation&nbsp;</legend>
+<BR>
+    <input type="range" min="0" max="100" class="slider" id="speedSlider">
+<BR><BR>
+<div class="rateOuter"><div id="rate" class="rateInner"></div></div>
+  </fieldset>
+  <fieldset>
+    <legend>&nbsp;Generators&nbsp;</legend>
+
+<BR>
+<input type="checkbox" onclick="toggleGenerator('gen_multi')" id="gen_multi">
+	<div style="display:inline-block; 
+        background: #ffffff; 
+        width:15px; 
+        height:15px; 
+        border-radius:125px"></div>
+Multi-Color
+<BR>
+
+<BR>
+    
+  </fieldset>
+  <fieldset>
+    <legend>&nbsp;Switches&nbsp;</legend>
+
+<BR>Overflow<BR>
+ 
+    <input type="radio" name="disp_overflow" value="0" onclick="toggleSwitch('disp_overflow', '0')" id="disp_overflow_0"/>
+    <label>keep</label><br />
+
+    <input type="radio" name="disp_overflow" value="1" onclick="toggleSwitch('disp_overflow', '1')" id="disp_overflow_1"/>
+    <label>dispose</label><br />
+
+
+<BR>
+  </fieldset>
+  <fieldset>
+    <legend>&nbsp;Cutoffs&nbsp;</legend>
+
+<input type="checkbox" onclick="toggleCutoff('cutoff_main')" id="cutoff_main">
+Main
+<BR>
+
+<input type="checkbox" onclick="toggleCutoff('cutoff_green')" id="cutoff_green">
+Green
+<BR>
+
+<input type="checkbox" onclick="toggleCutoff('cutoff_purple')" id="cutoff_purple">
+Purple
+<BR>
+
+<input type="checkbox" onclick="toggleCutoff('cutoff_yellow')" id="cutoff_yellow">
+Yellow
+<BR>
+
+<input type="checkbox" onclick="toggleCutoff('cutoff_red')" id="cutoff_red">
+Red
+<BR>
+
+<input type="checkbox" onclick="toggleCutoff('cutoff_blue')" id="cutoff_blue">
+Blue
+<BR>
+
+  </fieldset>
+</form>
+<BR><BR><BR>
+<div>[<a href="index.html">Home</a>]   </div>
+	
+</div>
+<div id="screen" class="screen">
+	
+</div>
+</div> 
+</div>
 
 		<script type="importmap">
 			{
@@ -41,15 +176,50 @@
 			let jsonLayout = JSON.parse(fetchLayout('waterfalls.json'));
 	            
 	        const elem = document.getElementById('screen');
-	        
-            const layout = new VEHICLE.SimpleTrackLayout(jsonLayout, window);
+	            
+            layout = new VEHICLE.SimpleTrackLayout(jsonLayout, window);
 			elem.appendChild( layout.getDomElement() );
-//			document.body.appendChild( layout.getDomElement() );
+
 			layout.layout();
+
+			var slider = document.getElementById("speedSlider");
+			slider.oninput = function() {
+			    setSpeed(this.value);
+			}
+
+			slider.value = 1000 / layout.msPerStep;		 
+	        setSpeed(slider.value);
+
+
+	        document.getElementById('disp_overflow_0').checked = switchSet("disp_overflow",0);
+	        document.getElementById('disp_overflow_1').checked = switchSet("disp_overflow",1);
+
+
+	        document.getElementById('gen_multi').checked = generatorEnabled("gen_multi");
+
+
+	        document.getElementById('cutoff_main').checked = cutoffOpen("cutoff_main");
+
+
+	        document.getElementById('cutoff_green').checked = cutoffOpen("cutoff_green");
+
+
+	        document.getElementById('cutoff_purple').checked = cutoffOpen("cutoff_purple");
+
+
+	        document.getElementById('cutoff_yellow').checked = cutoffOpen("cutoff_yellow");
+
+
+	        document.getElementById('cutoff_red').checked = cutoffOpen("cutoff_red");
+
+
+	        document.getElementById('cutoff_blue').checked = cutoffOpen("cutoff_blue");
 						
 			function animate( timestamp ) {
 				requestAnimationFrame( animate );
 				layout.move( timestamp );
+	        	document.getElementById('gen_multi').checked = generatorEnabled("gen_multi");
+
 			}
 			
 			animate();

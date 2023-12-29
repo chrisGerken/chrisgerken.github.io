@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 	<head>
-		<title>three.js webgl - Nested</title>
+		<title>three.js webgl - Workbench</title>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 		<link type="text/css" rel="stylesheet" href="mt.css">
@@ -70,7 +70,7 @@
   <fieldset>
     <legend>&nbsp;Goals&nbsp;</legend>
 <BR>
-Just watch.
+WIP
 <BR><BR>
 
 <BR>
@@ -86,13 +86,7 @@ Just watch.
     <legend>&nbsp;Generators&nbsp;</legend>
 
 <BR>
-<input type="checkbox" onclick="toggleGenerator('gen_cyan')" id="gen_cyan">
-	<div style="display:inline-block; 
-        background: #008888; 
-        width:15px; 
-        height:15px; 
-        border-radius:125px"></div>
-Cyan Marbles
+None
 <BR>
 
 <BR>
@@ -101,59 +95,9 @@ Cyan Marbles
   <fieldset>
     <legend>&nbsp;Switches&nbsp;</legend>
 
-<BR>02<BR>
- 
-    <input type="radio" name="man02" value="1" onclick="toggleSwitch('man02', '1')" id="man02_1"/>
-    <label>In</label><br />
-
-    <input type="radio" name="man02" value="0" onclick="toggleSwitch('man02', '0')" id="man02_0"/>
-    <label>Out</label><br />
-
-
-<BR>04<BR>
- 
-    <input type="radio" name="man04" value="1" onclick="toggleSwitch('man04', '1')" id="man04_1"/>
-    <label>In</label><br />
-
-    <input type="radio" name="man04" value="0" onclick="toggleSwitch('man04', '0')" id="man04_0"/>
-    <label>Out</label><br />
-
-
-<BR>05<BR>
- 
-    <input type="radio" name="man05" value="0" onclick="toggleSwitch('man05', '0')" id="man05_0"/>
-    <label>In</label><br />
-
-    <input type="radio" name="man05" value="1" onclick="toggleSwitch('man05', '1')" id="man05_1"/>
-    <label>Out</label><br />
-
-
-<BR>06<BR>
- 
-    <input type="radio" name="man06" value="1" onclick="toggleSwitch('man06', '1')" id="man06_1"/>
-    <label>In</label><br />
-
-    <input type="radio" name="man06" value="0" onclick="toggleSwitch('man06', '0')" id="man06_0"/>
-    <label>Out</label><br />
-
-
-<BR>07<BR>
- 
-    <input type="radio" name="man07" value="0" onclick="toggleSwitch('man07', '0')" id="man07_0"/>
-    <label>In</label><br />
-
-    <input type="radio" name="man07" value="1" onclick="toggleSwitch('man07', '1')" id="man07_1"/>
-    <label>Out</label><br />
-
-
-<BR>08<BR>
- 
-    <input type="radio" name="man08" value="1" onclick="toggleSwitch('man08', '1')" id="man08_1"/>
-    <label>In</label><br />
-
-    <input type="radio" name="man08" value="0" onclick="toggleSwitch('man08', '0')" id="man08_0"/>
-    <label>Out</label><br />
-
+<BR>
+None
+<BR>
 
 <BR>
   </fieldset>
@@ -198,7 +142,7 @@ None
 			    return Httpreq.responseText;          
 			}
 
-			let jsonLayout = JSON.parse(fetchLayout('nested.json'));
+			let jsonLayout = JSON.parse(fetchLayout('workbench.json'));
 	            
 	        const elem = document.getElementById('screen');
 	            
@@ -216,31 +160,10 @@ None
 	        setSpeed(slider.value);
 
 
-	        document.getElementById('man02_1').checked = switchSet("man02",1);
-	        document.getElementById('man02_0').checked = switchSet("man02",0);
-
-	        document.getElementById('man04_1').checked = switchSet("man04",1);
-	        document.getElementById('man04_0').checked = switchSet("man04",0);
-
-	        document.getElementById('man05_0').checked = switchSet("man05",0);
-	        document.getElementById('man05_1').checked = switchSet("man05",1);
-
-	        document.getElementById('man06_1').checked = switchSet("man06",1);
-	        document.getElementById('man06_0').checked = switchSet("man06",0);
-
-	        document.getElementById('man07_0').checked = switchSet("man07",0);
-	        document.getElementById('man07_1').checked = switchSet("man07",1);
-
-	        document.getElementById('man08_1').checked = switchSet("man08",1);
-	        document.getElementById('man08_0').checked = switchSet("man08",0);
-
-
-	        document.getElementById('gen_cyan').checked = generatorEnabled("gen_cyan");
 						
 			function animate( timestamp ) {
 				requestAnimationFrame( animate );
 				layout.move( timestamp );
-	        	document.getElementById('gen_cyan').checked = generatorEnabled("gen_cyan");
 
 			}
 			

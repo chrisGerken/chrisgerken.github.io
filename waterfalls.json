@@ -20,7 +20,7 @@
 		{"type":"light","kind":"directional","position":{"x":0, "y":0, "z":4},"color":"white","intensity":4} ,
 		{"type":"light","kind":"directional","position":{"x":3, "y":0, "z":-4},"color":"white","intensity":4} ,
 
-		{"type":"generator","every":7,"max":200,"balls":[{"color":"blue","speed":3},{"color":"red","speed":3},{"color":"yellow","speed":3},{"color":"purple","speed":3},{"color":"green","speed":3}], "tv": {"x":0, "y":-2.15, "z":-1, "neswAngle":90, "plane":"XZ"  }} ,
+		{"type":"generator","every":7,"max":200,"balls":[{"color":"blue","speed":3},{"color":"red","speed":3},{"color":"yellow","speed":3},{"color":"purple","speed":3},{"color":"green","speed":3}], "tv": {"x":0, "y":-2.15, "z":-1, "neswAngle":90, "plane":"XZ"  },"label":"gen_multi","desc":""} ,
 		{"type":"straight","length":0.3} ,
 		{"type":"switch","label":"first"} ,
 		{"type":"straight","length":0.4} ,
@@ -1130,7 +1130,11 @@
 		{"type":"switch","label":"dd"} ,
 		{"type":"straight","length":0.2} ,
 		{"type":"switch","label":"de"} ,
-		{"type":"straight","length":1.2} ,
+		{"type":"straight","length":0.4} ,
+		{"type":"manualSwitch","label":"disp_overflow","desc":"Overflow","labelOffset":{"x":0.1,"y":0,"z":-0.1}} ,
+		{"type":"straight","length":0.5} ,
+		{"type":"cutoff","label":"cutoff_main","desc":"Main"} ,
+		{"type":"straight","length":0.3} ,
 		{"type":"left","radius":0.05,"angle":90} , 
 		{"type":"connectTo","label":"first"} ,
 
@@ -1196,6 +1200,7 @@
 		{"type":"setCurrent","label":"dsk01"} ,
 		{"type":"right","radius":0.05,"angle":90,"color":"blue"} ,
 		{"type":"run", "label":"spiral-out"} ,
+		{"type":"cutoff","label":"cutoff_blue","desc":"Blue"} ,
 		{"type":"plane","plane":"XZ"} ,
 		{"type":"straight","length":0.71} ,
 		{"type":"switch","label":"ad2"} ,
@@ -1216,26 +1221,35 @@
 		{"type":"setCurrent","label":"dsk02"} ,
 		{"type":"right","radius":0.05,"angle":90,"color":"red"} ,
 		{"type":"run", "label":"spiral-out"} ,
+		{"type":"cutoff","label":"cutoff_red","desc":"Red"} ,
 		{"type":"plane","plane":"XZ"} ,
 		{"type":"connectTo","label":"ad2"} ,
 
 		{"type":"setCurrent","label":"dsk03"} ,
 		{"type":"right","radius":0.05,"angle":90,"color":"yellow"} ,
 		{"type":"run", "label":"spiral-out"} ,
+		{"type":"cutoff","label":"cutoff_yellow","desc":"Yellow"} ,
 		{"type":"plane","plane":"XZ"} ,
 		{"type":"connectTo","label":"ad3"} ,
 
 		{"type":"setCurrent","label":"dsk04"} ,
 		{"type":"right","radius":0.05,"angle":90,"color":"purple"} ,
 		{"type":"run", "label":"spiral-out"} ,
+		{"type":"cutoff","label":"cutoff_purple","desc":"Purple"} ,
 		{"type":"plane","plane":"XZ"} ,
 		{"type":"connectTo","label":"ad4"} ,
 
 		{"type":"setCurrent","label":"dsk05"} ,
 		{"type":"right","radius":0.05,"angle":90,"color":"green"} ,
 		{"type":"run", "label":"spiral-out"} ,
+		{"type":"cutoff","label":"cutoff_green","desc":"Green"} ,
 		{"type":"plane","plane":"XZ"} ,
-		{"type":"connectTo","label":"ad5"} 
+		{"type":"connectTo","label":"ad5"}  ,
+
+		{"type":"setCurrent","label":"disp_overflow"} ,
+		{"type":"right","radius":0.05,"angle":90} ,
+		{"type":"straight","length":0.1} ,
+		{"type":"disposal"} 
 		
 
 		]
