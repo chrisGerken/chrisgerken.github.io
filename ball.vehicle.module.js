@@ -25,6 +25,7 @@ let   ballSafeDistance = 3;
 let   defaultTrackColor = "grey";
 let   layout;
 let   switches = { };
+let   cutoffs = { };
 let   gens = { };
 let   definedColors = {};
 let   blocks = { };
@@ -391,6 +392,14 @@ class SimpleTrackLayout {
 		return this.currentTrack;	
 	}
 	
+	addCutoff( jobj ) {
+		this.previousTrack = this.currentTrack;
+		this.currentTrack = new Cutoff( this.currentTrack.endTv , jobj );
+		this.previousTrack.setNextTrack(this.currentTrack);
+		this.addFluid(this.currentTrack);
+		return this.currentTrack;	
+	}
+	
 	addBallVehicle( jobj , track , position ) {
 		let newBall = new BallVehicle( jobj );
 		newBall.position(track, position);
@@ -505,6 +514,14 @@ class SimpleTrackLayout {
 		gens[id].toggle();
 	}
 	
+	toggleCutoff ( id ) {
+		cutoffs[id].open = !cutoffs[id].open;
+	}
+	
+	cutoffOpen( id) {
+		return cutoffs[id].open;
+	}
+		
 	generatorEnabled( id ) {
 		return gens[id].enabled;
 	}
@@ -601,6 +618,11 @@ class SimpleTrackLayout {
 		
 		if (type === "stop") {
 			this.addStop( action );
+			return;			
+		}
+		
+		if (type === "cutoff") {
+			this.addCutoff( action );
 			return;			
 		}
 		
@@ -857,6 +879,19 @@ class Track {
 		this.getColorable().setColor(newColor);
 	}
 
+	move() {
+	
+	}
+	 
+	green() {
+		return 0x00ff00;
+	}
+	
+	
+	red() {
+		return 0xff0000;
+	}
+
 }
 
 const changeConfig = {
@@ -1011,6 +1046,55 @@ class StopTrack extends Track {
 	
 	red() {
 		return 0xff0000;
+	}
+	
+	isPrevTrack( track ) {
+		return this.open;
+	}
+
+}
+
+class Cutoff extends Track {
+	
+	constructor ( tv , jobj ) {
+		super (tv);
+		this.type = "stop";
+		this.label = lookup(jobj, "label", "missing_label");
+		this.desc   = lookup(jobj, "desc", this.label);
+		this.labelOffset = lookup(jobj, "labelOffset", {"x":0.1,"y":0.1,"z":0.1} );
+		this.logConstruct(JSON.stringify(this));
+		this.color = this.green();
+		this.open = true;
+		this.points = [];
+		this.places = [];
+		this.endTv = tv;
+		cutoffs[this.label] = this;
+		this.active = true;
+		
+		layout.placeText(this.desc, 0xffffff, tv.x+this.labelOffset.x,tv.y+this.labelOffset.y,tv.z+this.labelOffset.z);
+	}
+
+	getDisplayableObject( ) {
+		
+		this.mesh = new THREE.Mesh( new THREE.SphereGeometry( 0.02, 3, 3 ), new THREE.MeshBasicMaterial( { color: this.color } ) ); 
+		this.mesh.position.set(this.tv.x,this.tv.y,this.tv.z);
+		
+		this.logPlacement(this.type+": on "+this.tv.asString());
+		
+		this.mesh.userData = { "mtKind": this.type };
+		
+		return [ this.mesh ];
+
+	}
+
+	move() {
+		if (this.open == true) {
+			this.color = this.green();
+			this.mesh.material.color.set( this.color );
+		} else {
+			this.color = this.red();
+			this.mesh.material.color.set( this.color );
+		}
 	}
 	
 	isPrevTrack( track ) {
