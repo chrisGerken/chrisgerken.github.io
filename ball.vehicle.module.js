@@ -683,6 +683,10 @@ class SimpleTrackLayout {
 	
 	placeText( text , color, x , y , z) {
 
+		if (text.length == 0) {
+			return;
+		}
+		
 		labels.push ( { text: text, color: color, x: x, y: y, z: z } );		
 		
 	}
