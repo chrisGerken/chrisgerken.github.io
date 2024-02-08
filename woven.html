@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>three.js webgl - Woven</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<link type="text/css" rel="stylesheet" href="mt.css">
+		<style>
+			b {
+				color: lightgreen;
+			}
+		</style>
+		<script>
+           
+			let layout;
+
+	        function toggleSimulation( flag ) {
+				layout.toggleSimulation( flag );
+			}
+			
+			function simulationRunning(  ) {
+				return layout.simulationRunning();
+			}
+
+	        function toggleGenerator( id ) {
+				layout.toggleGenerator(id);
+			}
+			
+			function generatorEnabled( id ) {
+				return layout.generatorEnabled(id);
+			}
+
+	        function toggleCutoff( id ) {
+				layout.toggleCutoff(id);
+			}
+			
+			function cutoffOpen( id ) {
+				return layout.cutoffOpen(id);
+			}
+
+	        function toggleSwitch( id , choice) {
+				layout.toggleSwitch(id,choice);
+			}
+			
+			function switchSet( id , choice ) {
+				return layout.switchSetting(id,choice);
+			}
+			
+			function setSpeed( ms ) {
+			    if (ms > 0) {
+			    	layout.msPerStep = 1000 / Number(ms); 
+			    }    
+			    if (ms == 0) {
+					document.getElementById('rate').innerHTML = "Simulation paused";
+			    	toggleSimulation( false );
+			    } else {
+					document.getElementById('rate').innerHTML = "Frames/Second: "+ms;
+			    	toggleSimulation( true );
+  				}
+			}
+			
+		</script>
+	</head>
+	<body>
+
+<div class="row">
+<div class="dashboard">
+<form>
+<BR>
+  <fieldset>
+    <legend>&nbsp;Goals&nbsp;</legend>
+<BR>
+3D weave
+<BR><BR>
+
+<BR>
+  </fieldset>
+  <fieldset>
+    <legend>&nbsp;Simulation&nbsp;</legend>
+<BR>
+    <input type="range" min="0" max="100" class="slider" id="speedSlider">
+<BR><BR>
+<div class="rateOuter"><div id="rate" class="rateInner"></div></div>
+  </fieldset>
+  <fieldset>
+    <legend>&nbsp;Generators&nbsp;</legend>
+
+<BR>
+<input type="checkbox" onclick="toggleGenerator('gen_marbles')" id="gen_marbles">
+	<div style="display:inline-block; 
+        background: #888888; 
+        width:15px; 
+        height:15px; 
+        border-radius:125px"></div>
+Marbles
+<BR>
+
+<BR>
+    
+  </fieldset>
+  <fieldset>
+    <legend>&nbsp;Switches&nbsp;</legend>
+
+<BR>Vent<BR>
+ 
+    <input type="radio" name="first" value="0" onclick="toggleSwitch('first', '0')" id="first_0"/>
+    <label>Main</label><br />
+
+    <input type="radio" name="first" value="1" onclick="toggleSwitch('first', '1')" id="first_1"/>
+    <label>Dispose</label><br />
+
+
+<BR>
+  </fieldset>
+  <fieldset>
+    <legend>&nbsp;Cutoffs&nbsp;</legend>
+
+<input type="checkbox" onclick="toggleCutoff('cutoff_recycle')" id="cutoff_recycle">
+Recycle
+<BR>
+
+  </fieldset>
+</form>
+<BR><BR><BR>
+<div>[<a href="index.html">Home</a>]   </div>
+	
+</div>
+<div id="screen" class="screen">
+	
+</div>
+</div> 
+</div>
+
+		<script type="importmap">
+			{
+				"imports": {
+					"three": "./build/three.module.js",
+					"vehicle": "./ball.vehicle.module.js",
+					"three/addons/": "./jsm/"
+				}
+			}
+		</script>
+
+		<script type="module">
+
+			import * as THREE from 'three';
+			import * as VEHICLE from 'vehicle';
+	
+			function fetchLayout(url){
+			    var Httpreq = new XMLHttpRequest(); // a new request
+			    Httpreq.open("GET",url,false);
+			    Httpreq.send(null);
+			    return Httpreq.responseText;          
+			}
+
+			let jsonLayout = JSON.parse(fetchLayout('woven.json'));
+	            
+	        const elem = document.getElementById('screen');
+	            
+            layout = new VEHICLE.SimpleTrackLayout(jsonLayout, window);
+			elem.appendChild( layout.getDomElement() );
+
+			layout.layout();
+
+			var slider = document.getElementById("speedSlider");
+			slider.oninput = function() {
+			    setSpeed(this.value);
+			}
+
+			slider.value = 1000 / layout.msPerStep;		 
+	        setSpeed(slider.value);
+
+
+	        document.getElementById('first_0').checked = switchSet("first",0);
+	        document.getElementById('first_1').checked = switchSet("first",1);
+
+
+	        document.getElementById('gen_marbles').checked = generatorEnabled("gen_marbles");
+
+
+	        document.getElementById('cutoff_recycle').checked = cutoffOpen("cutoff_recycle");
+						
+			function animate( timestamp ) {
+				requestAnimationFrame( animate );
+				layout.move( timestamp );
+	        	document.getElementById('gen_marbles').checked = generatorEnabled("gen_marbles");
+
+			}
+			
+			animate();
+
+		</script>
+
+	</body>
+</html>

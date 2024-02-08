@@ -54,6 +54,21 @@
 
         </page>
 
+        <page  name="woven"  title="Woven">
+
+            <goal>3D weave</goal>
+
+            <generator  label="Marbles"      color="888888"  id="gen_marbles" />
+
+			<cutoff     label="Recycle"    id="cutoff_recycle"  />
+            
+            <switch  label="Vent"  id="first"  >
+                <track  label="Main"     index="0"  id="0" />
+                <track  label="Dispose"  index="1"  id="1" />
+            </switch>
+
+        </page>
+
         <page  name="waterfalls"  title="Waterfalls">
 
 
