@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright 2010-2023 Three.js Authors
+ * Copyright 2023-2024 Chris Gerken
  * SPDX-License-Identifier: MIT
  */
 
@@ -436,6 +436,10 @@ class SimpleTrackLayout {
 	}
 	
 	setCurrentTrack( label ) {
+		if (!switches.hasOwnProperty(label)) {
+			console.log("Undefined label: "+label);
+			return;
+		}
 		let track = switches[label];
 		this.currentTrack = track;
 	}
@@ -447,6 +451,7 @@ class SimpleTrackLayout {
 	connectTo( label ) {
 		if (!switches.hasOwnProperty(label)) {
 			console.log("Undefined label: "+label);
+			return;
 		}
 		let track = switches[label];
 		this.currentTrack.setNextTrack(track);
@@ -641,6 +646,11 @@ class SimpleTrackLayout {
 			return;			
 		}
 		
+		if (type === "unset") {
+			delete switches[action.label];
+			return;			
+		}
+		
 		if (type === "light") {
 			this.addLight( action );
 			return;			
@@ -703,10 +713,13 @@ class SimpleTrackLayout {
 }
 
 class Track {
-	constructor ( tv ) {
+	constructor ( tv , jobj) {
 		this.tv = tv;
 		this.points = [];
 		this.places = [];
+		if (jobj.hasOwnProperty("weight")) {
+			this.weight = lookup(jobj, "weight", 1.0);
+		}
 	} 	
 
 	getNextTrack(vehicle) {
@@ -740,6 +753,17 @@ class Track {
 	
 	isPrevTrack( track ) {
 		return track === this.prevTrack;
+	}
+	
+	getWeight() {
+		if (!this.hasOwnProperty("weight")) {
+			this.weight = 1.0;
+		}
+		return this.weight;
+	}
+	
+	setWeight( value) {
+		this.weight = value;
 	}
 	
 	logConstruct( text ) {
@@ -919,10 +943,10 @@ const changeConfig = {
 class PlaneChanger extends Track {
 	
 	constructor ( tv, jobj ) {
-		super (tv);
+		super (tv, jobj);
 		this.points = [];
 		this.places = [];
-		this.newPlane = jobj["plane"]; 
+		this.newPlane = lookup(jobj, "plane", "XY"); 
 		this.color =  lookupColor( lookup( jobj , "color" , defaultTrackColor ));
 		
 		if (!this.toNesw()) {
@@ -947,8 +971,8 @@ class PlaneChanger extends Track {
 class PainterTrack extends Track {
 	
 	constructor ( tv , jobj ) {
-		super (tv);
-		this.color =  lookupColor( jobj["color"] );
+		super (tv, jobj);
+		this.color =  lookupColor( lookup ( jobj , "color" , "white" ));
 		this.type = "painter";
 		this.logConstruct(JSON.stringify(this));
 		this.points = [];
@@ -997,7 +1021,7 @@ class PainterTrack extends Track {
 class StopTrack extends Track {
 	
 	constructor ( tv , jobj ) {
-		super (tv);
+		super (tv, jobj);
 		this.type = "stop";
 		this.frequency = jobj["frequency"];
 		this.starts = jobj["starts"];
@@ -1061,7 +1085,7 @@ class StopTrack extends Track {
 class Cutoff extends Track {
 	
 	constructor ( tv , jobj ) {
-		super (tv);
+		super (tv, jobj);
 		this.type = "stop";
 		this.label = lookup(jobj, "label", "missing_label");
 		this.desc   = lookup(jobj, "desc", this.label);
@@ -1110,7 +1134,7 @@ class Cutoff extends Track {
 class SwitchTrack extends Track {
 	
 	constructor ( tv , jobj ) {
-		super (tv);
+		super (tv, jobj);
 		this.label = jobj["label"];
 		this.type = "switch";
 		this.logConstruct(JSON.stringify(this));
@@ -1178,7 +1202,7 @@ class SwitchTrack extends Track {
 class ManualSwitchTrack extends Track {
 	
 	constructor ( tv , jobj ) {
-		super (tv);
+		super (tv, jobj);
 		this.label = lookup(jobj, "label", "missing_label");
 		this.desc   = lookup(jobj, "desc", this.label);
 		this.type = "manualSwitch";
@@ -1299,6 +1323,8 @@ class SpraySwitch extends SwitchTrack {
 		this.nexts = [];
 		this.prevs = [];
 		this.places = [];
+		this.weights = [];
+		this.totalWeight = 0.0;
 		this.active = true;
 	}
 
@@ -1306,9 +1332,21 @@ class SpraySwitch extends SwitchTrack {
 
 	}
 	
+	setNextTrack( track ) {
+		super.setNextTrack(track);
+		this.weights.push(this.totalWeight);
+		this.totalWeight = this.totalWeight + track.getWeight();
+	}
+	
 	crossedBy( vehicle ) {
 		if (this.random) {
-			this.outIndex = Math.floor(Math.random()*this.nexts.length);
+			let spin = Math.random()*this.totalWeight;
+			this.outIndex = 0;
+			for (let i = 1; i < this.nexts.length; i++) {
+				if (spin > this.weights[i]) {
+					this.outIndex = i;
+				}
+			}
 		} else {
 			this.outIndex++;
 			if (this.outIndex >= this.nexts.length) {
@@ -1323,7 +1361,7 @@ class SpraySwitch extends SwitchTrack {
 class StraightTrack extends Track  {
 	
 	constructor ( tv, jobj ) {
-		super(tv);
+		super(tv, jobj);
 		this.length = jobj["length"];
 		this.color =  lookupColor( lookup( jobj , "color" , defaultTrackColor ));
 		this.type = "straight";
@@ -1386,7 +1424,7 @@ class StraightTrack extends Track  {
 class CurveTrack extends Track {
 	
 	constructor ( tv, jobj ) {
-		super(tv);
+		super(tv, jobj);
 		this.radius = jobj["radius"];
 		this.angle =  jobj["angle"];
 		this.color =  lookupColor( lookup( jobj , "color" , defaultTrackColor ));
@@ -1598,7 +1636,7 @@ class RightCurveTrack extends CurveTrack {
 class RegularGenerator extends Track {
 	
 	constructor ( tv , jobj ) {
-		super(tv);
+		super(tv, jobj);
 		this.every 	= lookup(jobj, "every", 10);
 		this.max 	= lookup(jobj, "max" , -1);
 		this.label  = jobj["label"];
@@ -1671,7 +1709,7 @@ class RegularGenerator extends Track {
 class Disposal extends Track {
 	
 	constructor ( tv , jobj ) {
-		super(tv);
+		super(tv, jobj);
 		this.type = "disposal";
 		this.logConstruct(JSON.stringify(this));
 		this.active = true;
